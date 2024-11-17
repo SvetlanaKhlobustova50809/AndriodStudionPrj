@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/create_recipe_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create Recipe"
+        android:textSize="24sp"
+        android:textColor="#000000"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <EditText
+        android:id="@+id/recipe_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Recipe Name"
+        android:background="@color/light_beige"
+        android:padding="12dp"
+        app:layout_constraintTop_toBottomOf="@id/create_recipe_header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:id="@+id/ingredients_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ingredients"
+        android:textSize="18sp"
+        android:textColor="#000000"
+        app:layout_constraintTop_toBottomOf="@id/recipe_name"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <LinearLayout
+        android:id="@+id/ingredients_list"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/ingredients_header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp">
+
+        <!--TODO: add ingredients fragment-->
+        <!--<LinearLayout
+            android:id="@+id/ingredient_item_1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/ingredient_text_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/light_beige"
+                android:text=""
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/quantity_text_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100 g"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                app:layout_constraintEnd_toEndOf="@+id/ingredient_text_1"
+                app:layout_constraintTop_toTopOf="@+id/ingredient_text_1"
+                app:layout_constraintBottom_toBottomOf="@+id/ingredient_text_1"/>
+
+            <ImageButton
+                android:id="@+id/remove_ingredient_1"
+                android:layout_width="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_remove"
+                android:text="X"
+                android:textColor="#FF0000"
+                app:layout_constraintEnd_toEndOf="@+id/ingredient_text_1"
+                app:layout_constraintTop_toTopOf="@+id/ingredient_text_1"
+                app:layout_constraintBottom_toBottomOf="@+id/ingredient_text_1"/>
+        </LinearLayout>-->
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/add_ingredient_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="+ Add Ingredient"
+        android:textColor="#FFFFFF"
+        android:background="#8A2BE2"
+        app:layout_constraintTop_toBottomOf="@id/ingredients_list"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:id="@+id/description_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Description"
+        android:textSize="18sp"
+        android:textColor="#000000"
+        app:layout_constraintTop_toBottomOf="@id/add_ingredient_button"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <EditText
+        android:id="@+id/recipe_description"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:hint="Write a description..."
+        android:background="@color/light_beige"
+        android:padding="12dp"
+        app:layout_constraintTop_toBottomOf="@id/description_header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
+
+    <Button
+        android:id="@+id/upload_photo_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Upload Photo"
+        android:textColor="#FFFFFF"
+        android:background="#8A2BE2"
+        app:layout_constraintTop_toBottomOf="@id/recipe_description"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/save_recipe_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:textColor="#FFFFFF"
+        android:background="#000000"
+        app:layout_constraintTop_toBottomOf="@id/upload_photo_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:padding="16dp">
+
+    <!--TODO: fix ScrollView-->
+
+    <!--<ScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">-->
+    <ImageView
+        android:id="@+id/profile_image"
+        android:layout_marginTop="16dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_profile"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"/>
+
+    <TextView
+        android:id="@+id/tomorrow_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tomorrow"
+        android:textSize="24sp"
+        android:textColor="#000000"
+        app:layout_constraintTop_toBottomOf="@id/profile_image"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <LinearLayout
+        android:id="@+id/microelements"
+        android:layout_width="0dp"
+        android:background="@color/violet"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/tomorrow_header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Microelements Titles -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/proteins_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Proteins"
+                android:textSize="16sp"
+                android:textColor="#FFFFFF"
+                android:padding="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/fats_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Fats"
+                android:textSize="16sp"
+                android:textColor="#FFFFFF"
+                android:padding="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/carbo_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Carbo"
+                android:textSize="16sp"
+                android:textColor="#FFFFFF"
+                android:padding="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/calories_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Calories"
+                android:textSize="16sp"
+                android:textColor="#FFFFFF"
+                android:padding="8dp"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <!-- Microelements Values -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/proteins_val"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="3.99"
+                android:textSize="16sp"
+                android:textColor="#FFFFFF"
+                android:padding="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/fats_val"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="5.75"
+                android:textSize="16sp"
+                android:textColor="#FFFFFF"
+                android:padding="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/carbo_val"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="7.22"
+                android:textSize="16sp"
+                android:textColor="#FFFFFF"
+                android:padding="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/calories_val"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="88"
+                android:textSize="16sp"
+                android:textColor="#FFFFFF"
+                android:padding="8dp"
+                android:layout_weight="1" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/water_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Water"
+        android:textSize="16sp"
+        android:textColor="#000000"
+        app:layout_constraintTop_toBottomOf="@id/microelements"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <!--Water Info-->
+    <LinearLayout
+        android:id="@+id/water_info"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintTop_toBottomOf="@id/water_label"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/glasses_val"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:paddingEnd="8dp"
+            android:layout_gravity="center_vertical" />
+
+        <TextView
+            android:id="@+id/glasses"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="glasses / "
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:paddingEnd="8dp"
+            android:layout_gravity="center_vertical" />
+
+        <TextView
+            android:id="@+id/litres_val"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0.4"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:layout_gravity="center_vertical" />
+
+        <TextView
+            android:id="@+id/litres"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" litres"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:layout_gravity="center_vertical" />
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/add_water_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="+ Add a Glass of Water"
+        android:textColor="#FFFFFF"
+        android:background="#8A2BE2"
+        app:layout_constraintTop_toBottomOf="@id/water_info"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/breakfast_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Breakfast"
+        android:textSize="18sp"
+        android:textColor="#000000"
+        app:layout_constraintTop_toBottomOf="@id/add_water_button"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="24dp"/>
+
+    <!--TODO: add item fragment-->
+
+    <!--<LinearLayout
+        android:id="@+id/breakfast_item"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/light_beige"
+        android:orientation="vertical"
+        android:padding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/breakfast_header">
+
+        <TextView
+            android:id="@+id/cheesecake"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cheesecake 75 g"
+            android:textColor="#000000"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Proteins 3,99 Fats 5,75 Carbo 7,22 Calories 88"
+            android:textColor="#000000"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/remove_cheesecake_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="×"
+            android:textColor="#FF0000" />
+    </LinearLayout>-->
+
+
+    <Button
+        android:id="@+id/add_food_breakfast_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="+ Add Food"
+        android:textColor="#FFFFFF"
+        android:background="#8A2BE2"
+        app:layout_constraintTop_toBottomOf="@id/breakfast_header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        android:id="@+id/lunch_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Lunch"
+        android:textSize="18sp"
+        android:textColor="#000000"
+        app:layout_constraintTop_toBottomOf="@id/add_food_breakfast_button"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="24dp"/>
+
+    <Button
+        android:id="@+id/add_food_lunch_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="+ Add Food"
+        android:textColor="#FFFFFF"
+        android:background="#8A2BE2"
+        app:layout_constraintTop_toBottomOf="@id/lunch_header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        android:id="@+id/dinner_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dinner"
+        android:textSize="18sp"
+        android:textColor="#000000"
+        app:layout_constraintTop_toBottomOf="@id/add_food_lunch_button"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="24dp"/>
+
+    <Button
+        android:id="@+id/add_food_dinner_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="+ Add Food"
+        android:textColor="#FFFFFF"
+        android:background="#8A2BE2"
+        app:layout_constraintTop_toBottomOf="@id/dinner_header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
+
+        <!--</LinearLayout>
+    </ScrollView>-->
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
