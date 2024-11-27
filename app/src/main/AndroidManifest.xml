@@ -23,6 +23,42 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".DiaryActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Сalorie_counter" />
+
+        <activity
+            android:name=".FoodActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Сalorie_counter" />
+
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Сalorie_counter" />
+
+        <activity
+            android:name=".ProgressActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Сalorie_counter" />
+
+        <activity
+            android:name=".RecipeActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Сalorie_counter" />
+
+        <activity
+            android:name=".SignUpActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Сalorie_counter" />
+
+        <activity
+            android:name=".NavActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Сalorie_counter" />
+
     </application>
 
 </manifest>

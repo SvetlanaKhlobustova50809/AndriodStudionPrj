@@ -1,4 +1,4 @@
-package com.example.alorie_counter.ui.theme
+package com.example.calorie_counter.ui.theme
 
 import android.app.Activity
 import android.os.Build
