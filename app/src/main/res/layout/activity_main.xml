@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center">
+
+    <!-- Кнопка для перехода в активность добавления блюда -->
+    <Button
+        android:id="@+id/addDishButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Добавить блюдо" />
+
+    <!-- Кнопка для перехода в активность добавления приема пищи -->
+    <Button
+        android:id="@+id/addMealButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Добавить прием пищи" />
+
+</LinearLayout>
