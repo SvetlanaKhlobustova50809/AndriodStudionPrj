@@ -8,4 +8,10 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="orange_500">#FF9800</color>
+    <color name="violet">#8A47EB</color>
+    <color name="light_beige">#F3F3F3</color>
+    <color name="beige">#D0C6C6</color>
+    <color name="purple">#9C27B0</color>
+    <color name="colorPrimary">#757575</color>  <!-- Серый для неактивной -->
+    <color name="colorAccent">#FF4081</color>  <!-- Розовый для активной -->
 </resources>

@@ -1,8 +1,10 @@
 package com.example.calorix
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -16,7 +18,8 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var loginEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var loginButton: Button
-    private lateinit var registerButton: Button
+    private lateinit var registerText: TextView
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +29,7 @@ class LoginActivity : AppCompatActivity() {
         loginEditText = findViewById(R.id.loginEditText)
         passwordEditText = findViewById(R.id.passwordEditText)
         loginButton = findViewById(R.id.loginButton)
-        registerButton = findViewById(R.id.registerButton)
+        registerText = findViewById(R.id.registerText)
 
         // Кнопка Войти
         loginButton.setOnClickListener {
@@ -41,10 +44,11 @@ class LoginActivity : AppCompatActivity() {
         }
 
         // Кнопка Регистрация
-        registerButton.setOnClickListener {
+        registerText.setOnClickListener {
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
         }
+
     }
 
     private fun checkLogin(username: String, password: String) {
@@ -56,6 +60,9 @@ class LoginActivity : AppCompatActivity() {
                 if (user != null) {
                     // Если пользователь найден, переход на главную страницу
                     val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                    intent.putExtra("USERNAME", user.userName)
+                    intent.putExtra("USERID", user.userId)
+                    intent.putExtra("USEREMAIL", user.email)
                     startActivity(intent)
                     finish() // Закрытие текущей активности
                 } else {

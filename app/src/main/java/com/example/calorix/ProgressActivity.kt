@@ -12,7 +12,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 
-class AddMealActivity : AppCompatActivity() {
+class ProgressActivity : AppCompatActivity() {
 
     private lateinit var bottomNavHome: ImageButton
     private lateinit var bottomNavDishes: ImageButton
@@ -24,7 +24,7 @@ class AddMealActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_meal)
+        setContentView(R.layout.activity_progress)
 
         // Инициализация кнопок
         bottomNavHome = findViewById(R.id.nav_home)
@@ -32,27 +32,27 @@ class AddMealActivity : AppCompatActivity() {
         bottomNavMeals = findViewById(R.id.nav_meals)
         bottomNavProfile = findViewById(R.id.nav_profile)
 
-        setSelectedButton(bottomNavMeals)
+        setSelectedButton(bottomNavProfile)
 
         // Обработчики для кнопок
         bottomNavDishes.setOnClickListener {
             // Переход на главную активность
-            val intent = Intent(this@AddMealActivity, MainActivity::class.java)
+            val intent = Intent(this@ProgressActivity, MainActivity::class.java)
             startActivity(intent)
         }
         bottomNavHome.setOnClickListener {
             // Переход на активность добавления блюда
-            val intent = Intent(this@AddMealActivity, AddDishActivity::class.java)
+            val intent = Intent(this@ProgressActivity, AddDishActivity::class.java)
             startActivity(intent)
         }
         bottomNavMeals.setOnClickListener {
             // Переход на активность добавления приема пищи
-            val intent = Intent(this@AddMealActivity, AddMealActivity::class.java)
+            val intent = Intent(this@ProgressActivity, AddMealActivity::class.java)
             startActivity(intent)
         }
         bottomNavProfile.setOnClickListener {
             // Переход на активность профиля
-            val intent = Intent(this@AddMealActivity, ProgressActivity::class.java)
+            val intent = Intent(this@ProgressActivity, ProgressActivity::class.java)
             startActivity(intent)
         }
     }

@@ -34,8 +34,14 @@
             </intent-filter>
         </activity>
 
+        <!-- Add Dish Activity -->
         <activity android:name=".AddDishActivity" />
+
+        <!-- Add Meal Activity -->
         <activity android:name=".AddMealActivity" />
+
+        <!-- Progress Activity -->
+        <activity android:name=".ProgressActivity" />
 
     </application>
 
