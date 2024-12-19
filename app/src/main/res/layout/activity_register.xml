@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:padding="16dp">
+
+    <!-- Кнопка "Log In" -->
+    <TextView
+        android:id="@+id/loginText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Уже зарегестрированы? Войти"
+        android:textColor="@android:color/holo_purple"
+        android:textSize="14sp"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <!-- Поле для ввода логина -->
+    <EditText
+        android:id="@+id/usernameEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Имя пользователя"
+        android:inputType="textPersonName"
+        android:background="@drawable/edit_text_background"
+        app:layout_constraintTop_toBottomOf="@id/loginText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:padding="12dp"
+        android:textColor="#6a0dad"
+        android:textColorHint="#6a0dad"/>
+
+    <!-- Поле для ввода Email -->
+    <EditText
+        android:id="@+id/emailEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Пароль"
+        android:inputType="textEmailAddress"
+        android:background="@drawable/edit_text_background"
+        app:layout_constraintTop_toBottomOf="@id/usernameEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:padding="12dp"
+        android:textColor="#6a0dad"
+        android:textColorHint="#6a0dad"/>
+
+    <!-- Поле для выбора пола -->
+    <Spinner
+        android:id="@+id/sexSpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/edit_text_background"
+        android:padding="12dp"
+        android:spinnerMode="dropdown"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/emailEditText" />
+
+    <EditText
+        android:id="@+id/ageEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Возраст"
+        android:inputType="number"
+        android:background="@drawable/edit_text_background"
+        app:layout_constraintTop_toBottomOf="@id/sexSpinner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:padding="12dp"
+        android:textColor="#6a0dad"
+        android:textColorHint="#6a0dad"/>
+
+    <!-- Поле для ввода роста -->
+    <EditText
+        android:id="@+id/heightEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Рост"
+        android:inputType="numberDecimal"
+        android:background="@drawable/edit_text_background"
+        app:layout_constraintTop_toBottomOf="@id/ageEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:padding="12dp"
+        android:textColor="#6a0dad"
+        android:textColorHint="#6a0dad"/>
+
+    <!-- Поле для ввода веса -->
+    <EditText
+        android:id="@+id/weightEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Вес"
+        android:inputType="numberDecimal"
+        android:background="@drawable/edit_text_background"
+        app:layout_constraintTop_toBottomOf="@id/heightEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:padding="12dp"
+        android:textColor="#6a0dad"
+        android:textColorHint="#6a0dad"/>
+
+    <!-- Поле для ввода пароля -->
+    <EditText
+        android:id="@+id/passwordEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Пароль"
+        android:inputType="textPassword"
+        android:background="@drawable/edit_text_background"
+        app:layout_constraintTop_toBottomOf="@id/weightEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:padding="12dp"
+        android:textColor="#6a0dad"
+        android:textColorHint="#6a0dad"/>
+
+    <!-- Поле для повторного ввода пароля -->
+    <EditText
+        android:id="@+id/repeatPasswordEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Повторите пароль"
+        android:inputType="textPassword"
+        android:background="@drawable/edit_text_background"
+        app:layout_constraintTop_toBottomOf="@id/passwordEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:padding="12dp"
+        android:textColor="#6a0dad"
+        android:textColorHint="#6a0dad"/>
+
+    <!-- Поле для выбора уровня активности -->
+    <Spinner
+        android:id="@+id/activityLevelSpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/repeatPasswordEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/edit_text_background"
+        android:padding="12dp" />
+
+    <!-- Поле для выбора цели -->
+    <Spinner
+        android:id="@+id/goalSpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/activityLevelSpinner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/edit_text_background"
+        android:padding="12dp"/>
+
+    <!-- Кнопка "Create Account" -->
+    <Button
+        android:id="@+id/createAccountButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Зарегестрироваться"
+        android:textColor="#ffffff"
+        android:backgroundTint="#6a0dad"
+        app:layout_constraintTop_toBottomOf="@id/goalSpinner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="16dp"
+        android:padding="12dp"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

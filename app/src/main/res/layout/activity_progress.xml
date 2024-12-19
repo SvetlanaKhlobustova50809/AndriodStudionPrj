@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Основной контент экрана -->
+    <LinearLayout
+        android:id="@+id/mainContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+    </LinearLayout>
+
+    <!-- Нижняя панель с кнопками -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:background="@android:color/white"
+        android:padding="8dp">
+
+        <!-- Кнопки для навигации между активностями -->
+        <ImageButton
+            android:id="@+id/nav_home"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_profile"
+            android:contentDescription="Home"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:layout_margin="8dp"
+            android:scaleType="fitCenter"/>
+
+
+        <ImageButton
+            android:id="@+id/nav_dishes"
+            android:src="@drawable/ic_main"
+            android:contentDescription="Dishes"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:layout_margin="8dp"
+            android:scaleType="fitCenter"
+            android:layout_width="48dp"
+            android:layout_height="48dp"/>
+
+        <ImageButton
+            android:id="@+id/nav_meals"
+            android:src="@drawable/ic_menu"
+            android:contentDescription="Meals"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:layout_margin="8dp"
+            android:scaleType="fitCenter"
+            android:layout_width="48dp"
+            android:layout_height="48dp"/>
+
+        <ImageButton
+            android:id="@+id/nav_profile"
+            android:src="@drawable/ic_progress"
+            android:contentDescription="Profile"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:layout_margin="8dp"
+            android:scaleType="fitCenter"
+            android:layout_width="48dp"
+            android:layout_height="48dp"/>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">YourApp</string>
+    <string name="login_hint">Логин</string>
+    <string name="password_hint">Пароль</string>
+    <string name="email_hint">Email</string>
+    <string name="login_button_text">Войти</string>
+    <string name="register_button_text">Зарегистрироваться</string>
+    <string name="welcome_message">Добро пожаловать!</string>
+</resources>
