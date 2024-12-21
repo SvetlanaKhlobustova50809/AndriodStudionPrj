@@ -5,9 +5,14 @@ import android.graphics.PorterDuff
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.Spinner
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.navigation.ui.AppBarConfiguration
@@ -59,6 +64,26 @@ class MainActivity : AppCompatActivity() {
         val carbs = findViewById<TextView>(R.id.carbo_val)
         carbs.text = (mealSummary["total_carbs"] as? Float ?: 0f).toString()
 
+        val addFoodBreakfastButton = findViewById<Button>(R.id.add_food_breakfast_button)
+        val addFoodLunchButton = findViewById<Button>(R.id.add_food_lunch_button)
+        val addFoodDinnerButton = findViewById<Button>(R.id.add_food_dinner_button)
+
+        // Обработчики нажатий на кнопки
+        addFoodBreakfastButton.setOnClickListener {
+            // Показываем диалог для завтрака
+            showAddFoodDialog("Breakfast")
+        }
+
+        addFoodLunchButton.setOnClickListener {
+            // Показываем диалог для обеда
+            showAddFoodDialog("Lunch")
+        }
+
+        addFoodDinnerButton.setOnClickListener {
+            // Показываем диалог для ужина
+            showAddFoodDialog("Dinner")
+        }
+
         // Инициализация кнопок
         bottomNavHome = findViewById(R.id.nav_home)
         bottomNavDishes = findViewById(R.id.nav_dishes)
@@ -66,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         bottomNavProfile = findViewById(R.id.nav_profile)
 
         setSelectedButton(bottomNavDishes)
-        // Обработчики для кнопок
+        // Обработчики длыя кнопок
         bottomNavDishes.setOnClickListener {
             // Переход на главную активность
         }
@@ -97,5 +122,55 @@ class MainActivity : AppCompatActivity() {
 
         // Установка цвета для выбранной кнопки
         selectedButton.setColorFilter(selectedColor, PorterDuff.Mode.SRC_IN)
+    }
+
+    private fun showAddFoodDialog(mealType: String) {
+
+        // Получаем список всех блюд из базы данных
+        val mealsList = DatabaseHelper(this@MainActivity).getAllFoodNames()
+
+        // Инфлейтируем вид для диалога
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_food, null)
+
+        // Находим элементы в диалоговом окне
+        val mealNameEditText = dialogView.findViewById<AutoCompleteTextView>(R.id.meal_name_edit_text)
+        val servingSizeEditText = dialogView.findViewById<EditText>(R.id.serving_size_edit_text)
+
+        // Настроим адаптер для AutoCompleteTextView с данными из базы данных
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, mealsList)
+        mealNameEditText.setAdapter(adapter)
+
+        // Получаем userId из Intent
+        val userId = intent.getIntExtra("USERID", -1)
+
+        // Получаем текущую дату
+        val currentDate = Calendar.getInstance().time
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val formattedDate = dateFormat.format(currentDate)
+
+        // Создаем AlertDialog
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Add $mealType")
+            .setView(dialogView)
+            .setPositiveButton("Add") { _, _ ->
+
+                // Получаем введенное название блюда и количество порций
+                val mealName = mealNameEditText.text.toString()
+                val servingSize = servingSizeEditText.text.toString().toIntOrNull() ?: 1 // По умолчанию 1 порция, если не указано
+
+                // Вызов функции для добавления в журнал приема пищи
+                val success = DatabaseHelper(this@MainActivity).addMealLog(mealName, servingSize, userId, formattedDate, mealType)
+
+                if (success) {
+                    Log.d("AddFoodDialog", "Meal successfully added: $mealName, $mealType, Quantity: $servingSize")
+                } else {
+                    Log.d("AddFoodDialog", "Failed to add meal.")
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .create()
+
+        // Показываем диалог
+        dialog.show()
     }
 }
