@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
 
         //Считаем данные за день
         val userId= intent.getIntExtra("USERID", -1)
-        dateFormat = SimpleDateFormat("yyyy-mm-dd", Locale.getDefault())
+        dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val date_for_sql = dateFormat.format(currentDate)
         val mealSummary = DatabaseHelper(this@MainActivity).getMealLogSummary(userId, date_for_sql)
         val calories = findViewById<TextView>(R.id.calories_val)
@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity() {
         }
         bottomNavProfile.setOnClickListener {
             // Переход на активность профиля
-            val intent = Intent(this@MainActivity, ProgressActivity::class.java)
+            val intent = Intent(this@MainActivity, ChatActivity::class.java)
             startActivity(intent)
         }
     }
@@ -143,10 +143,10 @@ class MainActivity : AppCompatActivity() {
         // Получаем userId из Intent
         val userId = intent.getIntExtra("USERID", -1)
 
-        // Получаем текущую дату
-        val currentDate = Calendar.getInstance().time
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val formattedDate = dateFormat.format(currentDate)
+        // Получаем текущее время
+        val currentTime = Calendar.getInstance().time
+        val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault()) // Для формата TIME
+        val formattedTime = timeFormat.format(currentTime)
 
         // Создаем AlertDialog
         val dialog = AlertDialog.Builder(this)
@@ -159,7 +159,7 @@ class MainActivity : AppCompatActivity() {
                 val servingSize = servingSizeEditText.text.toString().toIntOrNull() ?: 1 // По умолчанию 1 порция, если не указано
 
                 // Вызов функции для добавления в журнал приема пищи
-                val success = DatabaseHelper(this@MainActivity).addMealLog(mealName, servingSize, userId, formattedDate, mealType)
+                val success = DatabaseHelper(this@MainActivity).addMealLog(mealName, servingSize, userId, formattedTime, mealType)
 
                 if (success) {
                     Log.d("AddFoodDialog", "Meal successfully added: $mealName, $mealType, Quantity: $servingSize")

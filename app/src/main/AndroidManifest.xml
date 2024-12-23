@@ -43,6 +43,8 @@
         <!-- Progress Activity -->
         <activity android:name=".ProgressActivity" />
 
+        <activity android:name=".ChatActivity" />
+
     </application>
 
 </manifest>

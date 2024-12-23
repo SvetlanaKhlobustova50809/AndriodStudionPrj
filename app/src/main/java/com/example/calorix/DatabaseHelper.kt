@@ -118,61 +118,71 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     fun getMealLogSummary(userId: Int, date: String): Map<String, Float> {
         val db = this.readableDatabase
+        Log.d("Database", "Starting getMealLogSummary with userId: $userId, date: $date")
+
+        // Логируем все записи из таблицы meals для проверки
+        Log.d("Database", "Fetching all records from meals table for debugging")
+
+        val queryAllMeals = "SELECT * FROM meals"
+        val cursorAllMeals = db.rawQuery(queryAllMeals, null)
+
+        if (cursorAllMeals.moveToFirst()) {
+            do {
+                val mealId = cursorAllMeals.getInt(cursorAllMeals.getColumnIndexOrThrow("meal_id"))
+                val mealName = cursorAllMeals.getString(cursorAllMeals.getColumnIndexOrThrow("meal_name"))
+                val createdAt = cursorAllMeals.getString(cursorAllMeals.getColumnIndexOrThrow("created_at"))
+                val updatedAt = cursorAllMeals.getString(cursorAllMeals.getColumnIndexOrThrow("updated_at"))
+
+                Log.d("Database", "Meal record - meal_id: $mealId, meal_name: $mealName, created_at: $createdAt, updated_at: $updatedAt")
+            } while (cursorAllMeals.moveToNext())
+        } else {
+            Log.d("Database", "No records found in meals table.")
+        }
+
+        cursorAllMeals.close()
+
+        // Теперь выполняем основной запрос для получения суммарных значений
         val query = """
         SELECT 
-            SUM(total_calories) AS total_calories,
-            SUM(total_proteins) AS total_proteins,
-            SUM(total_fats) AS total_fats,
-            SUM(total_carbs) AS total_carbs
-        FROM meal_logs
-        WHERE user_id = ? AND DATE(meal_time) = ?
+            SUM(ml.total_calories) AS total_calories,
+            SUM(ml.total_proteins) AS total_proteins,
+            SUM(ml.total_fats) AS total_fats,
+            SUM(ml.total_carbs) AS total_carbs
+        FROM meal_logs ml
+        INNER JOIN meals m ON ml.meal_id = m.meal_id
+        WHERE ml.user_id = ? AND DATE(datetime(m.created_at / 1000, 'unixepoch')) = ?   
     """
+
+        Log.d("Database", "Executing query: $query")
+        Log.d("Database", "Query parameters: user_id = $userId, date = $date")
 
         val cursor = db.rawQuery(query, arrayOf(userId.toString(), date))
         val result = mutableMapOf<String, Float>()
 
         if (cursor.moveToFirst()) {
-            result["total_calories"] = cursor.getFloat(cursor.getColumnIndexOrThrow("total_calories"))
-            result["total_proteins"] = cursor.getFloat(cursor.getColumnIndexOrThrow("total_proteins"))
-            result["total_fats"] = cursor.getFloat(cursor.getColumnIndexOrThrow("total_fats"))
-            result["total_carbs"] = cursor.getFloat(cursor.getColumnIndexOrThrow("total_carbs"))
+            val totalCalories = cursor.getFloat(cursor.getColumnIndexOrThrow("total_calories"))
+            val totalProteins = cursor.getFloat(cursor.getColumnIndexOrThrow("total_proteins"))
+            val totalFats = cursor.getFloat(cursor.getColumnIndexOrThrow("total_fats"))
+            val totalCarbs = cursor.getFloat(cursor.getColumnIndexOrThrow("total_carbs"))
+
+            Log.d("Database", "Query result - total_calories: $totalCalories, total_proteins: $totalProteins, total_fats: $totalFats, total_carbs: $totalCarbs")
+
+            result["total_calories"] = totalCalories
+            result["total_proteins"] = totalProteins
+            result["total_fats"] = totalFats
+            result["total_carbs"] = totalCarbs
+        } else {
+            Log.d("Database", "No data found for the given userId and date.")
         }
 
         cursor.close()
+        Log.d("Database", "getMealLogSummary completed with result: $result")
         return result
     }
 
-    //Функция для добавления приёма пищи и воды (для тех самых кнопок на главной странице)
-    fun addMealLog(userId: Int, mealId: Int, dietId: Int, mealTime: String?, totalCalories: Float?, totalProteins: Float?, totalFats: Float?, totalCarbs: Float?) {
-        val db = this.writableDatabase
 
-        // Создаем объект ContentValues, куда будем добавлять только ненулевые значения
-        val values = android.content.ContentValues()
 
-        // Обязательно добавляем все поля, которые передаются
-        values.put("user_id", userId)
-        values.put("meal_id", mealId)
-        values.put("diet_id", dietId)
 
-        // Если время приема пищи передано, добавляем его в базу
-        mealTime?.let { values.put("meal_time", it) }
-
-        // Если значение не null, добавляем его в базу
-        totalCalories?.takeIf { it != 0f }?.let { values.put("total_calories", it) }
-        totalProteins?.takeIf { it != 0f }?.let { values.put("total_proteins", it) }
-        totalFats?.takeIf { it != 0f }?.let { values.put("total_fats", it) }
-        totalCarbs?.takeIf { it != 0f }?.let { values.put("total_carbs", it) }
-
-        // Выполняем вставку данных в таблицу meal_logs
-        val result = db.insert("meal_logs", null, values)
-
-        // Проверяем, был ли успешен результат (результат -1 означает ошибку)
-        if (result == -1L) {
-            Log.e("DatabaseHelper", "Failed to insert meal log")
-        } else {
-            Log.d("DatabaseHelper", "Meal log inserted successfully")
-        }
-    }
 
     fun getUserById(userId: Int): Map<String, Any> {
         val db = this.readableDatabase
@@ -355,109 +365,93 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
 
     // Функция для добавления записи в meal_logs
+    // Основная функция с использованием новой функции
     fun addMealLog(foodName: String, quantity: Int, userId: Int, mealTime: String, mealType: String): Boolean {
         val db = this.writableDatabase
-
         Log.d("Database", "Starting addMealLog with foodName: $foodName, quantity: $quantity, userId: $userId, mealTime: $mealTime, mealType: $mealType")
 
-        // Проверяем, существует ли прием пищи с указанным mealType (завтрак, обед, ужин) и дата создания соответствует текущей
         var mealId: Int? = getMealIdByNameAndDate(mealType)
-
         if (mealId == null) {
-            Log.d("Database", "Meal not found for mealType: $mealType, adding new meal")
-            mealId = addMeal(mealType)
+            Log.d("Database", "Meal not found, creating new meal for mealType: $mealType")
+            mealId = addMeal(mealType)  // Функция addMeal не должна закрывать базу данных
+            if (mealId == null) {
+                Log.e("Database", "Failed to get or create meal for mealType: $mealType")
+                db.close() // Закрываем базу данных, так как дальнейшие операции невозможны
+                return false
+            }
         }
+        Log.d("Database", "MealId obtained: $mealId")
 
-        if (mealId == null) {
-            Log.e("Database", "Failed to get or create meal for mealType: $mealType")
-            db.close()
+        val (isFound, foodData) = getFoodData(foodName)  // Эта функция также не должна закрывать базу данных
+        if (!isFound) {
+            Log.e("Database", "Food data not found for foodName: $foodName")
+            db.close() // Закрываем базу данных, так как дальнейшие операции невозможны
             return false
         }
 
-        Log.d("Database", "MealId obtained: $mealId")
+        val foodId = foodData["food_id"] as? Int ?: -1
+        val calories = foodData["calories"] as? Float ?: 0f
+        val proteins = foodData["proteins"] as? Float ?: 0f
+        val fats = foodData["fats"] as? Float ?: 0f
+        val carbs = foodData["carbs"] as? Float ?: 0f
 
-        // Получаем food_id для указанного foodName
-        val cursor = try {
-            Log.d("Database", "Executing query: SELECT food_id, calories, proteins, fats, carbs FROM foods WHERE food_name = $foodName")
-            db.rawQuery("SELECT food_id, calories, proteins, fats, carbs FROM foods WHERE food_name = ?", arrayOf(foodName))
-        } catch (e: Exception) {
-            Log.e("Database", "Error executing rawQuery", e)
-            null
+        Log.d("Database", "Food data - foodId: $foodId, calories: $calories, proteins: $proteins, fats: $fats, carbs: $carbs")
+
+        val totalCalories = calories * quantity
+        val totalProteins = proteins * quantity
+        val totalFats = fats * quantity
+        val totalCarbs = carbs * quantity
+
+        Log.d("Database", """
+        Calculated values:
+        total_calories: $totalCalories
+        total_proteins: $totalProteins
+        total_fats: $totalFats
+        total_carbs: $totalCarbs
+    """.trimIndent())
+
+        Log.d("Database", """
+        Preparing to insert meal log:
+        user_id: $userId
+        meal_id: $mealId
+        meal_time: $mealTime
+        total_calories: $totalCalories
+        total_proteins: $totalProteins
+        total_fats: $totalFats
+        total_carbs: $totalCarbs
+    """.trimIndent())
+
+        val values = ContentValues().apply {
+            put("user_id", userId)
+            put("meal_id", mealId)
+            put("diet_id", 1)  // diet_id 1
+            put("meal_time", mealTime)
+            put("total_calories", totalCalories)
+            put("total_proteins", totalProteins)
+            put("total_fats", totalFats)
+            put("total_carbs", totalCarbs)
         }
 
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                Log.d("Database", "Data found for food: $foodName")
+        Log.d("Database", "Attempting to insert meal log with values: $values")
 
-                // Получаем индексы для всех столбцов
-                val foodIdIndex = cursor.getColumnIndex("food_id")
-                val caloriesIndex = cursor.getColumnIndex("calories")
-                val proteinsIndex = cursor.getColumnIndex("proteins")
-                val fatsIndex = cursor.getColumnIndex("fats")
-                val carbsIndex = cursor.getColumnIndex("carbs")
+        try {
+            // Вставка в таблицу
+            val result = db.insert("meal_logs", null, values)
 
-                // Проверяем, что индексы валидны (>= 0)
-                if (foodIdIndex >= 0 && caloriesIndex >= 0 && proteinsIndex >= 0 && fatsIndex >= 0 && carbsIndex >= 0) {
-                    // Обрабатываем возможные NULL значения для каждого столбца
-                    val foodId = if (!cursor.isNull(foodIdIndex)) cursor.getInt(foodIdIndex) else -1
-                    val calories = if (!cursor.isNull(caloriesIndex)) cursor.getFloat(caloriesIndex) else 0f
-                    val proteins = if (!cursor.isNull(proteinsIndex)) cursor.getFloat(proteinsIndex) else 0f
-                    val fats = if (!cursor.isNull(fatsIndex)) cursor.getFloat(fatsIndex) else 0f
-                    val carbs = if (!cursor.isNull(carbsIndex)) cursor.getFloat(carbsIndex) else 0f
-
-                    // Логирование значений
-                    Log.d("Database", "Food data found - foodId: $foodId, calories: $calories, proteins: $proteins, fats: $fats, carbs: $carbs")
-
-                    // Вычисляем общие значения на основе количества порций
-                    val totalCalories = calories * quantity
-                    val totalProteins = proteins * quantity
-                    val totalFats = fats * quantity
-                    val totalCarbs = carbs * quantity
-
-                    // Получаем diet_id для пользователя (если оно есть)
-                    val dietId = getDietIdForUser(userId)
-
-                    Log.d("Database", "DietId for user $userId: $dietId")
-
-                    // Создаем объект для записи в таблицу meal_logs
-                    val values = ContentValues().apply {
-                        put("user_id", userId)
-                        put("meal_id", mealId)
-                        put("diet_id", dietId ?: -1) // Если диета не найдена, используем -1
-                        put("meal_time", mealTime)
-                        put("total_calories", totalCalories)
-                        put("total_proteins", totalProteins)
-                        put("total_fats", totalFats)
-                        put("total_carbs", totalCarbs)
-                        put("created_at", "CURRENT_TIMESTAMP") // Текущее время для записи
-                    }
-
-                    // Вставляем данные в таблицу meal_logs
-                    val result = db.insert("meal_logs", null, values)
-
-                    if (result != -1L) {
-                        Log.d("Database", "Meal log inserted successfully")
-                    } else {
-                        Log.e("Database", "Failed to insert meal log")
-                    }
-
-                    cursor.close()
-                    db.close()
-
-                    return result != -1L
-                } else {
-                    Log.e("Database", "Invalid column index for food data")
-                }
+            if (result != -1L) {
+                Log.d("Database", "Meal log inserted successfully")
+                db.close() // Закрываем базу данных только после успешной вставки
+                return true
             } else {
-                Log.e("Database", "No data found for foodName: $foodName")
+                Log.e("Database", "Failed to insert meal log, result: $result")
+                db.close() // Закрываем базу данных в случае ошибки вставки
+                return false
             }
-            cursor.close()
-        } else {
-            Log.e("Database", "Cursor is null after query execution.")
+        } catch (e: Exception) {
+            Log.e("Database", "Error during insert operation", e)
+            db.close() // Закрываем базу данных в случае ошибки
+            return false
         }
-
-        db.close()
-        return false
     }
 
 
@@ -483,7 +477,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         Log.e("Database", "Meal not found for mealName: $mealName")
         cursor.close()
-        db.close()
         return null
     }
 
@@ -493,22 +486,63 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         val values = ContentValues().apply {
             put("meal_name", mealName)
-            put("created_at", "CURRENT_TIMESTAMP")  // Подставляем текущую дату и время
+            put("created_at", System.currentTimeMillis())  // Время в миллисекундах
         }
 
         val mealId = db.insert("meals", null, values)
 
         if (mealId != -1L) {
             Log.d("Database", "Successfully added new meal with mealId: $mealId")
-            db.close()
             return mealId.toInt()
         } else {
             Log.e("Database", "Failed to add new meal")
-            db.close()
             return null
         }
     }
 
+    // Функция для получения данных о пище
+    fun getFoodData(foodName: String): Pair<Boolean, Map<String, Any?>> {
+        val db = this.readableDatabase
+
+        try {
+            val cursor = db.rawQuery(
+                "SELECT food_id, calories, proteins, fats, carbs FROM foods WHERE food_name = ?",
+                arrayOf(foodName)
+            )
+            if (cursor != null && cursor.moveToFirst()) {
+                // Проверяем наличие всех нужных столбцов
+                val foodIdIndex = cursor.getColumnIndex("food_id")
+                val caloriesIndex = cursor.getColumnIndex("calories")
+                val proteinsIndex = cursor.getColumnIndex("proteins")
+                val fatsIndex = cursor.getColumnIndex("fats")
+                val carbsIndex = cursor.getColumnIndex("carbs")
+
+                if (foodIdIndex == -1 || caloriesIndex == -1 || proteinsIndex == -1 || fatsIndex == -1 || carbsIndex == -1) {
+                    Log.e("Database", "One or more required columns are missing in the result")
+                    cursor.close()
+                    db.close()
+                    return Pair(false, mapOf())
+                }
+
+                // Извлекаем данные, проверяя на NULL
+                val foodData = mapOf(
+                    "food_id" to cursor.getInt(foodIdIndex),
+                    "calories" to if (!cursor.isNull(caloriesIndex)) cursor.getFloat(caloriesIndex) else 0f,
+                    "proteins" to if (!cursor.isNull(proteinsIndex)) cursor.getFloat(proteinsIndex) else 0f,
+                    "fats" to if (!cursor.isNull(fatsIndex)) cursor.getFloat(fatsIndex) else 0f,
+                    "carbs" to if (!cursor.isNull(carbsIndex)) cursor.getFloat(carbsIndex) else 0f
+                )
+                cursor.close()
+                return Pair(true, foodData)
+            } else {
+                cursor?.close()
+                return Pair(false, mapOf())
+            }
+        } catch (e: Exception) {
+            Log.e("Database", "Error fetching food data", e)
+            return Pair(false, mapOf())
+        }
+    }
 
 
 
