@@ -30,6 +30,8 @@ class AddMealActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_meal)
 
+        val userId = intent.getIntExtra("USERID", -1)
+
         val searchRecipe = findViewById<AutoCompleteTextView>(R.id.search_recipe)
         val textInputArea = findViewById<EditText>(R.id.text_input_area)
         val addFoodButton = findViewById<Button>(R.id.add_food_button)
@@ -59,21 +61,22 @@ class AddMealActivity : AppCompatActivity() {
         bottomNavDishes.setOnClickListener {
             // Переход на главную активность
             val intent = Intent(this@AddMealActivity, MainActivity::class.java)
+            intent.putExtra("USERID", userId)
             startActivity(intent)
         }
         bottomNavHome.setOnClickListener {
             // Переход на активность добавления блюда
             val intent = Intent(this@AddMealActivity, AddDishActivity::class.java)
+            intent.putExtra("USERID", userId)
             startActivity(intent)
         }
         bottomNavMeals.setOnClickListener {
             // Переход на активность добавления приема пищи
-            val intent = Intent(this@AddMealActivity, AddMealActivity::class.java)
-            startActivity(intent)
         }
         bottomNavProfile.setOnClickListener {
             // Переход на активность профиля
-            val intent = Intent(this@AddMealActivity, ProgressActivity::class.java)
+            val intent = Intent(this@AddMealActivity, ChatActivity::class.java)
+            intent.putExtra("USERID", userId)
             startActivity(intent)
         }
 

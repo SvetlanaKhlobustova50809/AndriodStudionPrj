@@ -66,6 +66,7 @@ class AddDishActivity : AppCompatActivity() {
         bottomNavDishes.setOnClickListener {
             // Переход на главную активность
             val intent = Intent(this@AddDishActivity, MainActivity::class.java)
+            intent.putExtra("USERID", userId)
             startActivity(intent)
         }
         bottomNavHome.setOnClickListener {
@@ -74,11 +75,13 @@ class AddDishActivity : AppCompatActivity() {
         bottomNavMeals.setOnClickListener {
             // Переход на активность добавления приема пищи
             val intent = Intent(this@AddDishActivity, AddMealActivity::class.java)
+            intent.putExtra("USERID", userId)
             startActivity(intent)
         }
         bottomNavProfile.setOnClickListener {
             // Переход на активность профиля
-            val intent = Intent(this@AddDishActivity, ProgressActivity::class.java)
+            val intent = Intent(this@AddDishActivity, ChatActivity::class.java)
+            intent.putExtra("USERID", userId)
             startActivity(intent)
         }
 

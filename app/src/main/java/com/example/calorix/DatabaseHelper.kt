@@ -180,7 +180,103 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return result
     }
 
+    fun getMealsForDate(userId: Int, currentDate: String): Map<String, List<Map<String, Any>>> {
+        val db = this.readableDatabase
+        Log.d("Database", "Starting getMealsForDate with userId: $userId, currentDate: $currentDate")
 
+        // SQL-запрос для извлечения данных о приёмах пищи
+        val query = """
+        SELECT 
+            m.meal_name,
+            mf.meal_food_id,
+            f.food_name,
+            mf.quantity,
+            ml.total_calories,
+            ml.total_proteins,
+            ml.total_fats,
+            ml.total_carbs,
+            m.created_at
+        FROM meal_logs ml
+        INNER JOIN meals m ON ml.meal_id = m.meal_id
+        INNER JOIN meal_foods mf ON m.meal_id = mf.meals_id
+        INNER JOIN foods f ON mf.foods_id = f.food_id
+        WHERE ml.user_id = ? 
+        AND DATE(datetime(m.created_at / 1000, 'unixepoch')) = ?
+    """
+
+        Log.d("Database", "Executing query: $query")
+        Log.d("Database", "Query parameters: user_id = $userId, currentDate = $currentDate")
+
+        val cursor = db.rawQuery(query, arrayOf(userId.toString(), currentDate))
+        val result = mutableMapOf<String, MutableList<Map<String, Any>>>()
+
+        if (cursor.moveToFirst()) {
+            do {
+                val mealName = cursor.getString(cursor.getColumnIndexOrThrow("meal_name"))
+                val totalCalories = cursor.getFloat(cursor.getColumnIndexOrThrow("total_calories"))
+                val totalProteins = cursor.getFloat(cursor.getColumnIndexOrThrow("total_proteins"))
+                val totalFats = cursor.getFloat(cursor.getColumnIndexOrThrow("total_fats"))
+                val totalCarbs = cursor.getFloat(cursor.getColumnIndexOrThrow("total_carbs"))
+                val loggedAt = cursor.getString(cursor.getColumnIndexOrThrow("created_at"))
+                val foodName = cursor.getString(cursor.getColumnIndexOrThrow("food_name"))
+
+                Log.d("Database", "Meal record - meal_name: $mealName, total_calories: $totalCalories, total_proteins: $totalProteins, total_fats: $totalFats, total_carbs: $totalCarbs, logged_at: $loggedAt")
+
+                // Добавляем данные в результат, группируя по meal_name
+                val mealData = mapOf(
+                    "total_calories" to totalCalories,
+                    "total_proteins" to totalProteins,
+                    "total_fats" to totalFats,
+                    "total_carbs" to totalCarbs,
+                    "created_at" to loggedAt,
+                    "food_name" to foodName
+                )
+
+                if (result.containsKey(mealName)) {
+                    result[mealName]?.add(mealData)
+                } else {
+                    result[mealName] = mutableListOf(mealData)
+                }
+            } while (cursor.moveToNext())
+        } else {
+            Log.d("Database", "No meals found for the given userId and date.")
+        }
+
+        cursor.close()
+        Log.d("Database", "getMealsForDate completed with result: $result")
+        return result
+    }
+
+    fun debugMealFoods() {
+        val db = this.readableDatabase
+
+        val query = """
+        SELECT 
+            mf.meal_food_id,
+            mf.meals_id,
+            mf.foods_id,
+            mf.quantity
+        FROM meal_foods mf
+    """
+
+        val cursor = db.rawQuery(query, null)
+
+        if (cursor.moveToFirst()) {
+            do {
+                val mealFoodId = cursor.getInt(cursor.getColumnIndexOrThrow("meal_food_id"))
+                val mealId = cursor.getInt(cursor.getColumnIndexOrThrow("meals_id"))
+                val foodId = cursor.getInt(cursor.getColumnIndexOrThrow("foods_id"))
+                val quantity = cursor.getInt(cursor.getColumnIndexOrThrow("quantity"))
+
+                Log.d("DatabaseDebug", "Meal Food - Meal Food ID: $mealFoodId, Meal ID: $mealId, Food ID: $foodId, Quantity: $quantity")
+
+            } while (cursor.moveToNext())
+        } else {
+            Log.d("DatabaseDebug", "No records found in meal_foods ")
+        }
+
+        cursor.close()
+    }
 
 
 
@@ -431,6 +527,13 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put("total_fats", totalFats)
             put("total_carbs", totalCarbs)
         }
+
+        val valuesMealFood = ContentValues().apply {
+            put("meals_id", mealId)
+            put("foods_id", foodId)
+            put("quantity", quantity)
+        }
+        db.insert("meal_foods", null, valuesMealFood)
 
         Log.d("Database", "Attempting to insert meal log with values: $values")
 

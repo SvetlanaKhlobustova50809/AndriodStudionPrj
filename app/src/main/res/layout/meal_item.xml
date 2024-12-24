@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/meal_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:text="Meal Name"
+        android:textSize="16sp"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/meal_quantity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Quantity"
+        android:textSize="14sp"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/meal_time"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Time"
+        android:textSize="14sp"
+        android:textColor="@android:color/black" />
+
+    <!-- Добавляем новый TextView для питательных веществ -->
+    <TextView
+        android:id="@+id/meal_nutrients"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nutrients"
+        android:textSize="12sp"
+        android:textColor="@android:color/black"
+        android:layout_marginStart="8dp" />
+
+</LinearLayout>

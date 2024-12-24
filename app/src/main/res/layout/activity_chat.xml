@@ -27,4 +27,55 @@
         android:imeOptions="actionSend"
         android:inputType="text" />
 
+    <!-- Bottom navigation buttons -->
+    <LinearLayout
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:background="@android:color/white"
+        android:padding="8dp"
+        android:layout_marginTop="16dp">
+
+        <ImageButton
+            android:id="@+id/nav_home"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_profile"
+            android:contentDescription="Home"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:layout_margin="8dp"
+            android:scaleType="fitCenter"/>
+
+        <ImageButton
+            android:id="@+id/nav_dishes"
+            android:src="@drawable/ic_main"
+            android:contentDescription="Dishes"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:layout_margin="8dp"
+            android:scaleType="fitCenter"
+            android:layout_width="48dp"
+            android:layout_height="48dp"/>
+
+        <ImageButton
+            android:id="@+id/nav_meals"
+            android:src="@drawable/ic_menu"
+            android:contentDescription="Meals"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:layout_margin="8dp"
+            android:scaleType="fitCenter"
+            android:layout_width="48dp"
+            android:layout_height="48dp"/>
+
+        <ImageButton
+            android:id="@+id/nav_profile"
+            android:src="@drawable/ic_progress"
+            android:contentDescription="Profile"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:layout_margin="8dp"
+            android:scaleType="fitCenter"
+            android:layout_width="48dp"
+            android:layout_height="48dp"/>
+    </LinearLayout>
 </LinearLayout>

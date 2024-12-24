@@ -26,6 +26,8 @@ class ProgressActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_progress)
 
+        val userId = intent.getIntExtra("USERID", -1)
+
         // Инициализация кнопок
         bottomNavHome = findViewById(R.id.nav_home)
         bottomNavDishes = findViewById(R.id.nav_dishes)
@@ -38,22 +40,23 @@ class ProgressActivity : AppCompatActivity() {
         bottomNavDishes.setOnClickListener {
             // Переход на главную активность
             val intent = Intent(this@ProgressActivity, MainActivity::class.java)
+            intent.putExtra("USERID", userId)
             startActivity(intent)
         }
         bottomNavHome.setOnClickListener {
             // Переход на активность добавления блюда
             val intent = Intent(this@ProgressActivity, AddDishActivity::class.java)
+            intent.putExtra("USERID", userId)
             startActivity(intent)
         }
         bottomNavMeals.setOnClickListener {
             // Переход на активность добавления приема пищи
             val intent = Intent(this@ProgressActivity, AddMealActivity::class.java)
+            intent.putExtra("USERID", userId)
             startActivity(intent)
         }
         bottomNavProfile.setOnClickListener {
             // Переход на активность профиля
-            val intent = Intent(this@ProgressActivity, ProgressActivity::class.java)
-            startActivity(intent)
         }
     }
 
