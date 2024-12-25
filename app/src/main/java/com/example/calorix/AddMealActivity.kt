@@ -2,6 +2,7 @@ package com.example.calorix
 
 import android.provider.MediaStore
 import android.app.Activity
+import android.content.Context
 import android.net.Uri
 import android.content.Intent
 import android.graphics.PorterDuff
@@ -14,21 +15,15 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.MultipartBody
 import org.json.JSONObject
-import java.io.File
 import java.io.IOException
 import kotlinx.coroutines.*
 import androidx.lifecycle.lifecycleScope
+import okhttp3.FormBody
 
 
 class AddMealActivity : AppCompatActivity() {
@@ -157,13 +152,27 @@ class AddMealActivity : AppCompatActivity() {
             if (selectedImageUri != null) {
                 val picturePath = getPathFromUri(selectedImageUri)
                 if (picturePath != null) {
-                    val imgurLink = uploadImageToImgur(picturePath)
-                    if (imgurLink != null) {
-                        Toast.makeText(this, "Image uploaded: $imgurLink", Toast.LENGTH_LONG).show()
-                        fetchResponseAsync(imgurLink)
-                    } else {
-//                        Toast.makeText(this, "Failed to upload image to Imgur", Toast.LENGTH_LONG).show()
-                        fetchResponseAsync("https://i.imgur.com/AprMtUi.jpeg")
+                    lifecycleScope.launch {
+                        // Launching a coroutine to handle the network request
+                        val imgurLink =
+                            uploadImageToImgurAsync(this@AddMealActivity, selectedImageUri, "ec4e929843e23b0")
+                        if (imgurLink != null) {
+//                            Toast.makeText(
+//                                this@AddMealActivity,
+//                                "Image uploaded",
+//                                Toast.LENGTH_LONG
+//                            ).show()
+                            println(imgurLink)
+                            fetchResponseAsync(imgurLink)
+                        } else {
+                            // Use a default image URL if upload fails
+                            Toast.makeText(
+                                this@AddMealActivity,
+                                "Failed to upload image to Imgur",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            fetchResponseAsync("https://i.imgur.com/AprMtUi.jpeg")
+                        }
                     }
                 } else {
                     Toast.makeText(this, "Failed to get file path from URI", Toast.LENGTH_LONG).show()
@@ -171,6 +180,7 @@ class AddMealActivity : AppCompatActivity() {
             }
         }
     }
+
 
     private fun fetchResponseAsync(imgurLink: String) {
         lifecycleScope.launch {
@@ -252,50 +262,47 @@ class AddMealActivity : AppCompatActivity() {
     }
 
 
-    fun uploadImageToImgur(filePath: String): String? {
-        val client = OkHttpClient()
-        val clientId = "ec4e929843e23b0"
-        val mediaType = "image/jpeg".toMediaTypeOrNull()
-        val file = File(filePath)
-//        Toast.makeText(this@AddMealActivity, filePath, Toast.LENGTH_LONG).show()
+    suspend fun uploadImageToImgurAsync(context: Context, imageUri: Uri, clientId: String): String? {
+        return withContext(Dispatchers.IO) {
+            val contentResolver = context.contentResolver
+            val inputStream = contentResolver.openInputStream(imageUri)
+            val imageBytes = inputStream?.readBytes()
+            inputStream?.close()
 
-        if (!file.exists()) {
-            println("File not found at path: $filePath")
-            return null
-        }
+            if (imageBytes == null) return@withContext null
 
-        val requestBody = MultipartBody.Builder()
-            .setType(MultipartBody.FORM)
-            .addFormDataPart("image", "${System.nanoTime()}.jpeg",
-                RequestBody.create(
-                    mediaType,
-                    file
-                )
-            )
-            .build()
+            val imageBase64 = android.util.Base64.encodeToString(imageBytes, android.util.Base64.NO_WRAP)
 
-        val request = Request.Builder()
-            .header("Authorization", "Client-ID $clientId")
-            .url("https://api.imgur.com/3/image")
-            .post(requestBody)
-            .build()
+            val client = OkHttpClient.Builder().build()
 
-        return try {
-            val response = client.newCall(request).execute()
-            if (response.isSuccessful) {
-                Toast.makeText(this@AddMealActivity, response.code, Toast.LENGTH_LONG).show()
-                val responseData = response.body?.string()
-                val json = JSONObject(responseData)
-                val data = json.getJSONObject("data")
-                data.getString("link")
-            } else {
-                println("Error: ${response.code}")
-                Toast.makeText(this@AddMealActivity, "Failed ${response.code}", Toast.LENGTH_LONG).show()
-                null
+            val requestBody = FormBody.Builder()
+                .add("image", imageBase64)
+                .add("type", "base64")
+                .build()
+
+            val request = Request.Builder()
+                .url("https://api.imgur.com/3/image")
+                .addHeader("Authorization", "Client-ID $clientId")
+                .post(requestBody)
+                .build()
+
+            try {
+                client.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        println("Failed response code: ${response.code}")
+                        return@withContext null
+                    }
+
+                    val responseString = response.body?.string() ?: return@withContext null
+                    val jsonObject = JSONObject(responseString)
+                    val dataObject = jsonObject.optJSONObject("data")
+                    return@withContext dataObject?.optString("link")
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+                println("IOException occurred: ${e.message}")
+                return@withContext null
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
         }
     }
 
