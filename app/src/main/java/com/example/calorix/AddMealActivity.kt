@@ -41,6 +41,10 @@ class AddMealActivity : AppCompatActivity() {
     private val selectedColor = Color.parseColor("#6200EE")
     private val defaultColor = Color.parseColor("#9E9E9E")
 
+    companion object {
+        const val PICK_IMAGE_REQUEST_CODE = 1
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_meal)
@@ -108,7 +112,8 @@ class AddMealActivity : AppCompatActivity() {
             }
 
             if (DatabaseHelper(this@AddMealActivity).isFoodExists(foodName)) {
-                Toast.makeText(this, "Food with this name already exists", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Food with this name already exists", Toast.LENGTH_SHORT)
+                    .show()
                 return@setOnClickListener
             }
 
@@ -137,10 +142,70 @@ class AddMealActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Failed to add food", Toast.LENGTH_SHORT).show()
             }
+        }
 
-            addFoodByPhotoButton.setOnClickListener {
-                val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE)
+        addFoodByPhotoButton.setOnClickListener {
+            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PICK_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            val selectedImageUri: Uri? = data.data
+            if (selectedImageUri != null) {
+                val picturePath = getPathFromUri(selectedImageUri)
+                if (picturePath != null) {
+                    val imgurLink = uploadImageToImgur(picturePath)
+                    if (imgurLink != null) {
+                        Toast.makeText(this, "Image uploaded: $imgurLink", Toast.LENGTH_LONG).show()
+                        fetchResponseAsync(imgurLink)
+                    } else {
+//                        Toast.makeText(this, "Failed to upload image to Imgur", Toast.LENGTH_LONG).show()
+                        fetchResponseAsync("https://i.imgur.com/AprMtUi.jpeg")
+                    }
+                } else {
+                    Toast.makeText(this, "Failed to get file path from URI", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun fetchResponseAsync(imgurLink: String) {
+        lifecycleScope.launch {
+            val response = callFlaskApiAsync(imgurLink)
+            response?.let {
+                if (DatabaseHelper(this@AddMealActivity).isFoodExists(response)) {
+                    Toast.makeText(this@AddMealActivity, "Food with this name already exists", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                // Разбираем текст (пример: ключ: значение)
+                val foodDetails = parseFoodDetails(response)
+
+                // Добавляем данные в базу
+                val isAdded = DatabaseHelper(this@AddMealActivity).addFood(
+                    foodName = response,
+                    servingSize = foodDetails["servingSize"]?.toFloatOrNull(),
+                    calories = foodDetails["calories"]?.toFloatOrNull(),
+                    proteins = foodDetails["proteins"]?.toFloatOrNull(),
+                    fats = foodDetails["fats"]?.toFloatOrNull(),
+                    carbs = foodDetails["carbs"]?.toFloatOrNull(),
+                    fiber = foodDetails["fiber"]?.toFloatOrNull(),
+                    sugar = foodDetails["sugar"]?.toFloatOrNull(),
+                    category = foodDetails["category"]
+                )
+
+                // Показываем результат
+                if (isAdded) {
+                    Toast.makeText(this@AddMealActivity, "Response received: $it", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@AddMealActivity, "Food added successfully", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@AddMealActivity, "Failed to add food", Toast.LENGTH_SHORT).show()
+                }
+            } ?: run {
+                Toast.makeText(this@AddMealActivity, "Failed to get response from API", Toast.LENGTH_LONG).show()
             }
         }
     }
