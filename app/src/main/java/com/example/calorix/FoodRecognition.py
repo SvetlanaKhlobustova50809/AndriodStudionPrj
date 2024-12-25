@@ -48,11 +48,12 @@ def predict():
         return jsonify({'error': post_model_outputs_response.status.description}), 500
     
     output = post_model_outputs_response.outputs[0]
-    concepts = [
-        concept.name for concept in output.data.concepts if concept.value >= 0.95
-    ]
+#     concepts = [
+#         concept.name for concept in output.data.concepts if concept.value >= 0.95
+#     ]
 
-    return jsonify({'predicted_concepts': concepts})
+    concept = output.data.concepts[0].name
+    return jsonify({'predicted_concepts': concept})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+    app.run(host='0.0.0.0', port=8080)

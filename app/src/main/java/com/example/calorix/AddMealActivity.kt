@@ -19,19 +19,21 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.Response
 import okhttp3.MultipartBody
 import org.json.JSONObject
 import java.io.File
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import java.io.IOException
+import kotlinx.coroutines.*
+import androidx.lifecycle.lifecycleScope
 
+
+data class PredictionResponse(
+    val predicted_concepts: String
+)
 
 
 class AddMealActivity : AppCompatActivity() {
@@ -159,11 +161,10 @@ class AddMealActivity : AppCompatActivity() {
                     val imgurLink = uploadImageToImgur(picturePath)
                     if (imgurLink != null) {
                         Toast.makeText(this, "Image uploaded: $imgurLink", Toast.LENGTH_LONG).show()
-                        val response = callFlaskApiAsync(imgurLink)
-//                        Toast.makeText(this, response, Toast.LENGTH_LONG).show()
+                        fetchResponseAsync(imgurLink)
                     } else {
-                        val response = callFlaskApiAsync("https://imgur.com/a/JVUJMz2")
 //                        Toast.makeText(this, "Failed to upload image to Imgur", Toast.LENGTH_LONG).show()
+                        fetchResponseAsync("https://i.imgur.com/AprMtUi.jpeg")
                     }
                 } else {
                     Toast.makeText(this, "Failed to get file path from URI", Toast.LENGTH_LONG).show()
@@ -172,7 +173,43 @@ class AddMealActivity : AppCompatActivity() {
         }
     }
 
-//    private fun recognizeFood(inputString: String) {
+    private fun fetchResponseAsync(imgurLink: String) {
+        lifecycleScope.launch {
+            val response = callFlaskApiAsync(imgurLink)
+            response?.let {
+                if (DatabaseHelper(this@AddMealActivity).isFoodExists(response)) {
+                    Toast.makeText(this@AddMealActivity, "Food with this name already exists", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                // Разбираем текст (пример: ключ: значение)
+                val foodDetails = parseFoodDetails(response)
+
+                // Добавляем данные в базу
+                val isAdded = DatabaseHelper(this@AddMealActivity).addFood(
+                    foodName = response,
+                    servingSize = foodDetails["servingSize"]?.toFloatOrNull(),
+                    calories = foodDetails["calories"]?.toFloatOrNull(),
+                    proteins = foodDetails["proteins"]?.toFloatOrNull(),
+                    fats = foodDetails["fats"]?.toFloatOrNull(),
+                    carbs = foodDetails["carbs"]?.toFloatOrNull(),
+                    fiber = foodDetails["fiber"]?.toFloatOrNull(),
+                    sugar = foodDetails["sugar"]?.toFloatOrNull(),
+                    category = foodDetails["category"]
+                )
+
+                // Показываем результат
+                if (isAdded) {
+                    Toast.makeText(this@AddMealActivity, "Response received: $it", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@AddMealActivity, "Food added successfully", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@AddMealActivity, "Failed to add food", Toast.LENGTH_SHORT).show()
+                }
+            } ?: run {
+                Toast.makeText(this@AddMealActivity, "Failed to get response from API", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
 
     private fun getPathFromUri(uri: Uri): String? {
         val projection = arrayOf(MediaStore.Images.Media.DATA)
@@ -185,61 +222,76 @@ class AddMealActivity : AppCompatActivity() {
         return null
     }
 
-    fun callFlaskApiAsync(imageUrl: String) {
-        val client = OkHttpClient()
-        val mediaType = "application/json".toMediaTypeOrNull()
-        val requestBody = "{\"image_url\":\"$imageUrl\"}".toRequestBody(mediaType)
+    suspend fun callFlaskApiAsync(imageUrl: String): String? {
+        return withContext(Dispatchers.IO) {
+            val client = OkHttpClient()
+            val mediaType = "application/json".toMediaTypeOrNull()
+            val requestBody = """{"image_url": "$imageUrl"}""".toRequestBody(mediaType)
 
-        val request = Request.Builder()
-            .url("https://10.0.2.2:10000/predict")
-            .addHeader("x-rapidapi-key", "7d1747c570msh75b79621466e46dp1087f9jsn50c200f1143f")
-            .post(requestBody)
-            .build()
+            val request = Request.Builder()
+                .url("http://10.0.2.2:8080/predict")
+                .post(requestBody)
+                .build()
 
-        CoroutineScope(Dispatchers.IO).launch {
             try {
                 client.newCall(request).execute().use { response ->
                     val responseData = response.body?.string()
                     if (response.isSuccessful && responseData != null) {
-                        println("Response: $responseData")
+                        val json = JSONObject(responseData)
+                        return@withContext json.getString("predicted_concepts")
                     } else {
                         println("Failed to connect: ${response.code}")
+                        return@withContext null
                     }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
                 println("Exception: ${e.message}")
+                return@withContext null
             }
         }
     }
 
+
     fun uploadImageToImgur(filePath: String): String? {
         val client = OkHttpClient()
         val clientId = "ec4e929843e23b0"
-        val mediaType = "image/*".toMediaTypeOrNull()
+        val mediaType = "image/jpeg".toMediaTypeOrNull()
         val file = File(filePath)
+//        Toast.makeText(this@AddMealActivity, filePath, Toast.LENGTH_LONG).show()
+
+        if (!file.exists()) {
+            println("File not found at path: $filePath")
+            return null
+        }
 
         val requestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
-            .addFormDataPart("image", file.name, file.asRequestBody(mediaType))
+            .addFormDataPart("image", "${System.nanoTime()}.jpeg",
+                RequestBody.create(
+                    mediaType,
+                    file
+                )
+            )
             .build()
 
         val request = Request.Builder()
+            .header("Authorization", "Client-ID $clientId")
             .url("https://api.imgur.com/3/image")
-            .addHeader("Authorization", "Client-ID $clientId")
             .post(requestBody)
             .build()
 
         return try {
             val response = client.newCall(request).execute()
             if (response.isSuccessful) {
+                Toast.makeText(this@AddMealActivity, response.code, Toast.LENGTH_LONG).show()
                 val responseData = response.body?.string()
                 val json = JSONObject(responseData)
                 val data = json.getJSONObject("data")
                 data.getString("link")
             } else {
                 println("Error: ${response.code}")
-                Toast.makeText(this, "Failed ${response.code}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@AddMealActivity, "Failed ${response.code}", Toast.LENGTH_LONG).show()
                 null
             }
         } catch (e: Exception) {
