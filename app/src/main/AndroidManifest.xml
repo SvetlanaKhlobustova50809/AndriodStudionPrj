@@ -50,5 +50,4 @@
         <activity android:name=".ChatActivity" />
 
     </application>
-
 </manifest>

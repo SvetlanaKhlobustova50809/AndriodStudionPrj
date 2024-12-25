@@ -1,8 +1,5 @@
 package com.example.calorix
 
-import android.provider.MediaStore
-import android.app.Activity
-import android.net.Uri
 import android.content.Intent
 import android.graphics.PorterDuff
 import android.graphics.Color
@@ -18,18 +15,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.MultipartBody
-import org.json.JSONObject
-import java.io.File
-import java.io.IOException
-import kotlinx.coroutines.*
-import androidx.lifecycle.lifecycleScope
-
 
 class AddMealActivity : AppCompatActivity() {
 
@@ -45,12 +30,9 @@ class AddMealActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_meal)
 
-        val userId = intent.getIntExtra("USERID", -1)
-
         val searchRecipe = findViewById<AutoCompleteTextView>(R.id.search_recipe)
         val textInputArea = findViewById<EditText>(R.id.text_input_area)
         val addFoodButton = findViewById<Button>(R.id.add_food_button)
-        val addFoodByPhotoButton = findViewById<Button>(R.id.add_by_photo_button)
 
         val foodNames  = DatabaseHelper(this@AddMealActivity).getAllFoodNames()
 
@@ -77,22 +59,21 @@ class AddMealActivity : AppCompatActivity() {
         bottomNavDishes.setOnClickListener {
             // Переход на главную активность
             val intent = Intent(this@AddMealActivity, MainActivity::class.java)
-            intent.putExtra("USERID", userId)
             startActivity(intent)
         }
         bottomNavHome.setOnClickListener {
             // Переход на активность добавления блюда
             val intent = Intent(this@AddMealActivity, AddDishActivity::class.java)
-            intent.putExtra("USERID", userId)
             startActivity(intent)
         }
         bottomNavMeals.setOnClickListener {
             // Переход на активность добавления приема пищи
+            val intent = Intent(this@AddMealActivity, AddMealActivity::class.java)
+            startActivity(intent)
         }
         bottomNavProfile.setOnClickListener {
             // Переход на активность профиля
-            val intent = Intent(this@AddMealActivity, ChatActivity::class.java)
-            intent.putExtra("USERID", userId)
+            val intent = Intent(this@AddMealActivity, ProgressActivity::class.java)
             startActivity(intent)
         }
 
@@ -137,100 +118,6 @@ class AddMealActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Failed to add food", Toast.LENGTH_SHORT).show()
             }
-
-            addFoodByPhotoButton.setOnClickListener {
-                val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE)
-            }
-        }
-    }
-
-    private fun getPathFromUri(uri: Uri): String? {
-        val projection = arrayOf(MediaStore.Images.Media.DATA)
-        contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                val columnIndex = cursor.getColumnIndexOrThrow(projection[0])
-                return cursor.getString(columnIndex)
-            }
-        }
-        return null
-    }
-
-    suspend fun callFlaskApiAsync(imageUrl: String): String? {
-        return withContext(Dispatchers.IO) {
-            val client = OkHttpClient()
-            val mediaType = "application/json".toMediaTypeOrNull()
-            val requestBody = """{"image_url": "$imageUrl"}""".toRequestBody(mediaType)
-
-            val request = Request.Builder()
-                .url("http://10.0.2.2:8080/predict")
-                .post(requestBody)
-                .build()
-
-            try {
-                client.newCall(request).execute().use { response ->
-                    val responseData = response.body?.string()
-                    if (response.isSuccessful && responseData != null) {
-                        val json = JSONObject(responseData)
-                        return@withContext json.getString("predicted_concepts")
-                    } else {
-                        println("Failed to connect: ${response.code}")
-                        return@withContext null
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                println("Exception: ${e.message}")
-                return@withContext null
-            }
-        }
-    }
-
-
-    fun uploadImageToImgur(filePath: String): String? {
-        val client = OkHttpClient()
-        val clientId = "ec4e929843e23b0"
-        val mediaType = "image/jpeg".toMediaTypeOrNull()
-        val file = File(filePath)
-//        Toast.makeText(this@AddMealActivity, filePath, Toast.LENGTH_LONG).show()
-
-        if (!file.exists()) {
-            println("File not found at path: $filePath")
-            return null
-        }
-
-        val requestBody = MultipartBody.Builder()
-            .setType(MultipartBody.FORM)
-            .addFormDataPart("image", "${System.nanoTime()}.jpeg",
-                RequestBody.create(
-                    mediaType,
-                    file
-                )
-            )
-            .build()
-
-        val request = Request.Builder()
-            .header("Authorization", "Client-ID $clientId")
-            .url("https://api.imgur.com/3/image")
-            .post(requestBody)
-            .build()
-
-        return try {
-            val response = client.newCall(request).execute()
-            if (response.isSuccessful) {
-                Toast.makeText(this@AddMealActivity, response.code, Toast.LENGTH_LONG).show()
-                val responseData = response.body?.string()
-                val json = JSONObject(responseData)
-                val data = json.getJSONObject("data")
-                data.getString("link")
-            } else {
-                println("Error: ${response.code}")
-                Toast.makeText(this@AddMealActivity, "Failed ${response.code}", Toast.LENGTH_LONG).show()
-                null
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
         }
     }
 

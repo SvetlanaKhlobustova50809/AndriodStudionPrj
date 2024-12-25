@@ -20,12 +20,20 @@ metadata = (('authorization', 'Key ' + PAT),)
 def predict():
     data = request.json
     image_url = data.get('image_url')
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> bcd731892d8c72403b6b52fc1c2676e3098433bb
     if not image_url:
         return jsonify({'error': 'Image URL is required'}), 400
 
     userDataObject = resources_pb2.UserAppIDSet(user_id=USER_ID, app_id=APP_ID)
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> bcd731892d8c72403b6b52fc1c2676e3098433bb
     post_model_outputs_response = stub.PostModelOutputs(
         service_pb2.PostModelOutputsRequest(
             user_app_id=userDataObject,
@@ -43,10 +51,17 @@ def predict():
         ),
         metadata=metadata
     )
+<<<<<<< HEAD
 
     if post_model_outputs_response.status.code != status_code_pb2.SUCCESS:
         return jsonify({'error': post_model_outputs_response.status.description}), 500
 
+=======
+    
+    if post_model_outputs_response.status.code != status_code_pb2.SUCCESS:
+        return jsonify({'error': post_model_outputs_response.status.description}), 500
+    
+>>>>>>> bcd731892d8c72403b6b52fc1c2676e3098433bb
     output = post_model_outputs_response.outputs[0]
 #     concepts = [
 #         concept.name for concept in output.data.concepts if concept.value >= 0.95
