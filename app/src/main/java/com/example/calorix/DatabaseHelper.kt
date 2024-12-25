@@ -195,7 +195,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             ml.total_proteins,
             ml.total_fats,
             ml.total_carbs,
-            m.created_at
+            m.created_at,
+            mf.quantity
         FROM meal_logs ml
         INNER JOIN meals m ON ml.meal_id = m.meal_id
         INNER JOIN meal_foods mf ON m.meal_id = mf.meals_id
@@ -219,6 +220,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 val totalCarbs = cursor.getFloat(cursor.getColumnIndexOrThrow("total_carbs"))
                 val loggedAt = cursor.getString(cursor.getColumnIndexOrThrow("created_at"))
                 val foodName = cursor.getString(cursor.getColumnIndexOrThrow("food_name"))
+                val quantity = cursor.getString(cursor.getColumnIndexOrThrow("quantity"))
 
                 Log.d("Database", "Meal record - meal_name: $mealName, total_calories: $totalCalories, total_proteins: $totalProteins, total_fats: $totalFats, total_carbs: $totalCarbs, logged_at: $loggedAt")
 
@@ -229,7 +231,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                     "total_fats" to totalFats,
                     "total_carbs" to totalCarbs,
                     "created_at" to loggedAt,
-                    "food_name" to foodName
+                    "food_name" to foodName,
+                    "quantity" to quantity
                 )
 
                 if (result.containsKey(mealName)) {

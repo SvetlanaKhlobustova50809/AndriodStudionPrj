@@ -207,25 +207,35 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createMealView(mealData: Map<String, Any>): View {
+        // Инфлейтим разметку элемента
         val mealView = layoutInflater.inflate(R.layout.meal_item, null)
-
-        val totalCalories = mealData["total_calories"] as? Float ?: 0f
-        val totalProteins = mealData["total_proteins"] as? Float ?: 0f
-        val totalFats = mealData["total_fats"] as? Float ?: 0f
-        val totalCarbs = mealData["total_carbs"] as? Float ?: 0f
+        Log.d("DEBUG", "mealData: $mealData")
+        // Извлекаем данные из Map с использованием безопасных типов
+        val totalCalories = (mealData["total_calories"] as? Float ?: 0f).toString()
+        val totalProteins = (mealData["total_proteins"] as? Float ?: 0f).toString()
+        val totalFats = (mealData["total_fats"] as? Float ?: 0f).toString()
+        val totalCarbs = (mealData["total_carbs"] as? Float ?: 0f).toString()
         val createdAtTimestamp = mealData["created_at"] as? Long ?: System.currentTimeMillis()
-        val foodName = mealData["food_name"] as? String ?:"No"
+        val foodName = mealData["food_name"] as? String ?: "No Name"
+        val quantity = (mealData["quantity"]).toString()
 
+
+        // Форматируем дату
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         val createdAt = dateFormat.format(Date(createdAtTimestamp))
 
+        // Заполняем данные в разметке
         mealView.findViewById<TextView>(R.id.meal_name).text = foodName
-        mealView.findViewById<TextView>(R.id.meal_quantity).text = "Quantity: N/A"
-        mealView.findViewById<TextView>(R.id.meal_time).text = "Logged at: $createdAt"
+        mealView.findViewById<TextView>(R.id.meal_weight).text = "Quantity:$quantity" // Можно передать реальный вес, если он есть в данных
+аф
+        // Отображаем питательные вещества
+        mealView.findViewById<TextView>(R.id.proteins).text = "Proteins\n$totalProteins"
+        mealView.findViewById<TextView>(R.id.fats).text = "Fats\n$totalFats"
+        mealView.findViewById<TextView>(R.id.carbohydrates).text = "Carbo\n$totalCarbs"
+        mealView.findViewById<TextView>(R.id.calories).text = "Calories\n$totalCalories"
 
-        val nutrientsText = "Calories: $totalCalories, Proteins: $totalProteins g, Fats: $totalFats g, Carbs: $totalCarbs g"
-        mealView.findViewById<TextView>(R.id.meal_nutrients).text = nutrientsText
 
         return mealView
     }
+
 }
