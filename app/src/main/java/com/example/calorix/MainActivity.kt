@@ -227,7 +227,6 @@ class MainActivity : AppCompatActivity() {
         // Заполняем данные в разметке
         mealView.findViewById<TextView>(R.id.meal_name).text = foodName
         mealView.findViewById<TextView>(R.id.meal_weight).text = "Quantity:$quantity" // Можно передать реальный вес, если он есть в данных
-аф
         // Отображаем питательные вещества
         mealView.findViewById<TextView>(R.id.proteins).text = "Proteins\n$totalProteins"
         mealView.findViewById<TextView>(R.id.fats).text = "Fats\n$totalFats"
