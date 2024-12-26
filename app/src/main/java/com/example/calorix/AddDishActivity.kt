@@ -13,10 +13,7 @@ import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
+
 
 class AddDishActivity : AppCompatActivity() {
 
@@ -36,6 +33,7 @@ class AddDishActivity : AppCompatActivity() {
         //Получаем данные со входа
         val userId= intent.getIntExtra("USERID", -1)
         val user_info = DatabaseHelper(this@AddDishActivity).getUserById(userId)
+        Log.d("Registration", "$user_info")
         val user_name = findViewById<TextView>(R.id.name_label)
         user_name.text = (user_info["user_name"] as? String).toString()
         val user_email = findViewById<TextView>(R.id.email_label)
@@ -45,10 +43,10 @@ class AddDishActivity : AppCompatActivity() {
         val radioFemale: RadioButton = findViewById(R.id.radio_female)
         val userGender = (user_info["gender"] as? String).toString()
         if (userGender == "Мужской") {
-            radioMale.isChecked = true  // Устанавливаем мужскую радиокнопку как выбранную
+            radioMale.isChecked = true
         }
         if (userGender == "Женский") {
-            radioMale.isChecked = true  // Устанавливаем мужскую радиокнопку как выбранную
+            radioMale.isChecked = true
         }
 
 
@@ -64,50 +62,37 @@ class AddDishActivity : AppCompatActivity() {
 
         // Обработчики для кнопок
         bottomNavDishes.setOnClickListener {
-            // Переход на главную активность
             val intent = Intent(this@AddDishActivity, MainActivity::class.java)
             intent.putExtra("USERID", userId)
             startActivity(intent)
         }
         bottomNavHome.setOnClickListener {
-            // Переход на активность добавления блюда
         }
         bottomNavMeals.setOnClickListener {
-            // Переход на активность добавления приема пищи
             val intent = Intent(this@AddDishActivity, AddMealActivity::class.java)
             intent.putExtra("USERID", userId)
             startActivity(intent)
         }
         bottomNavProfile.setOnClickListener {
-            // Переход на активность профиля
             val intent = Intent(this@AddDishActivity, ChatActivity::class.java)
             intent.putExtra("USERID", userId)
             startActivity(intent)
         }
 
-        // Обработчик нажатия на кнопку Log Out
+        // Обработчик нажатия на кнопку "Зарегестрироваться"
         updateButton.setOnClickListener {
-            // Получаем данные с полей
             val name = user_name.text.toString()
             val email = user_email.text.toString()
 
-            // Получаем значение пола
             val gender = when {
                 radioMale.isChecked -> "Мужской"
                 radioFemale.isChecked -> "Женский"
                 else -> ""
             }
 
-            // Получаем возраст
             val age = findViewById<AutoCompleteTextView>(R.id.age_dropdown).text.toString()
-
-            // Получаем рост
             val height = findViewById<AutoCompleteTextView>(R.id.height_dropdown).text.toString()
-
-            // Получаем вес
             val weight = findViewById<AutoCompleteTextView>(R.id.weight_dropdown).text.toString()
-
-            // Получаем пароли
             val password = findViewById<EditText>(R.id.password_label).text.toString()
             val repeatPassword = findViewById<EditText>(R.id.repeat_password_label).text.toString()
 
@@ -116,7 +101,6 @@ class AddDishActivity : AppCompatActivity() {
 
                 // Проверка на совпадение паролей
                 if (password == repeatPassword) {
-                    // Создаем объект для обновления только тех полей, которые не пустые
                     val isUpdated = DatabaseHelper(this).editUser(
                         userId, name, email, gender, age.takeIf { it.isNotEmpty() },
                         height.takeIf { it.isNotEmpty() }, weight.takeIf { it.isNotEmpty() },
@@ -125,14 +109,11 @@ class AddDishActivity : AppCompatActivity() {
 
                     // Проверка, обновились ли данные
                     if (isUpdated) {
-                        // Показываем сообщение об успешном обновлении
                         Toast.makeText(this, "Данные обновлены", Toast.LENGTH_SHORT).show()
                     } else {
-                        // Показываем ошибку
                         Toast.makeText(this, "Ошибка при обновлении данных", Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    // Показываем сообщение об ошибке, если пароли не совпадают
                     Toast.makeText(this, "Пароли не совпадают", Toast.LENGTH_SHORT).show()
                 }
             } else {

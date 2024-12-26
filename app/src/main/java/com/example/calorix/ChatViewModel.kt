@@ -20,32 +20,32 @@ class ChatViewModel : ViewModel() {
         _messages.value = _messages.value!! + ChatMessage(userMessage, true)
 
         viewModelScope.launch(Dispatchers.IO) {
-            var extractedValue = "Model answer"
+            //var extractedValue = "Model answer"
             // Раскоментить для ответа модели
-//            val client = OkHttpClient()
-//
-//            val mediaType = "application/json".toMediaTypeOrNull()
-//            val body = RequestBody.create(mediaType, "{\"query\":\"$userMessage\"}")
-//            val request = Request.Builder()
-//                .url("https://chatgpt-openai1.p.rapidapi.com/ask")
-//                .post(body)
-//                .addHeader("x-rapidapi-key", "7d1747c570msh75b79621466e46dp1087f9jsn50c200f1143f")
-//                .addHeader("x-rapidapi-host", "chatgpt-openai1.p.rapidapi.com")
-//                .addHeader("Content-Type", "application/json")
-//                .build()
-//
-//            val response = client.newCall(request).execute()
-//            val responseBody = response.body?.string()
-//            var extractedValue = ""
-//            if (responseBody != null) {
-//                val gson = Gson()
-//                val jsonObject = gson.fromJson(responseBody, JsonObject::class.java)
-//
-//                extractedValue = jsonObject.get("response")?.asString.toString()
-//
-//            } else {
-//                extractedValue = "Response body is null"
-//            }
+            val client = OkHttpClient()
+
+            val mediaType = "application/json".toMediaTypeOrNull()
+            val body = RequestBody.create(mediaType, "{\"query\":\"$userMessage\"}")
+            val request = Request.Builder()
+                .url("https://chatgpt-openai1.p.rapidapi.com/ask")
+                .post(body)
+                .addHeader("x-rapidapi-key", "7d1747c570msh75b79621466e46dp1087f9jsn50c200f1143f")
+                .addHeader("x-rapidapi-host", "chatgpt-openai1.p.rapidapi.com")
+                .addHeader("Content-Type", "application/json")
+                .build()
+
+            val response = client.newCall(request).execute()
+            val responseBody = response.body?.string()
+            var extractedValue = ""
+            if (responseBody != null) {
+                val gson = Gson()
+                val jsonObject = gson.fromJson(responseBody, JsonObject::class.java)
+
+                extractedValue = jsonObject.get("response")?.asString.toString()
+
+            } else {
+                extractedValue = "Response body is null"
+            }
 
 
             val botMessage = extractMessageFromResponse(extractedValue)

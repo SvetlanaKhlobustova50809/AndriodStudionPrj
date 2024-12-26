@@ -83,7 +83,7 @@ class ChatActivity: ComponentActivity()  {
             startActivity(intent)
         }
         bottomNavMeals.setOnClickListener {
-            val intent = Intent(this@ChatActivity, ChatActivity::class.java)
+            val intent = Intent(this@ChatActivity, AddMealActivity::class.java)
             intent.putExtra("USERID", userId)
             startActivity(intent)
         }
