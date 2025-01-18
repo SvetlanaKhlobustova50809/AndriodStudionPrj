@@ -63,9 +63,6 @@ def predict():
     
 >>>>>>> bcd731892d8c72403b6b52fc1c2676e3098433bb
     output = post_model_outputs_response.outputs[0]
-#     concepts = [
-#         concept.name for concept in output.data.concepts if concept.value >= 0.95
-#     ]
 
     concept = output.data.concepts[0].name
     return jsonify({'predicted_concepts': concept})
