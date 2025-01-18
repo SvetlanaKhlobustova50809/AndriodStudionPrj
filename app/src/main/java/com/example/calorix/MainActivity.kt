@@ -13,8 +13,10 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.example.ChatViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -158,21 +160,65 @@ class MainActivity : AppCompatActivity() {
                 // Получаем введенное название блюда и количество порций
                 val mealName = mealNameEditText.text.toString()
                 val servingSize = servingSizeEditText.text.toString().toIntOrNull() ?: 1 // По умолчанию 1 порция, если не указано
+                Log.d("Recommendations","$mealName")
+                // Создаем вопрос для чата
+                val question = "Is $mealName suitable for a high-protein diet?"
 
-                // Вызов функции для добавления в журнал приема пищи
-                val success = DatabaseHelper(this@MainActivity).addMealLog(mealName, servingSize, userId, formattedTime, mealType)
+                // Отправляем вопрос в чат
+                //val chatViewModel = ChatViewModel()
+                //chatViewModel.sendMessage(question)
 
-                if (success) {
-                    Log.d("AddFoodDialog", "Meal successfully added: $mealName, $mealType, Quantity: $servingSize")
-                    loadMealsForToday() // Перезагружаем данные после добавления
+                // Ожидаем ответа бота (до 30 секунд)
+//                var botResponse: String? = null
+//                val maxWaitTime = 30000L // Максимальное время ожидания в миллисекундах (30 секунд)
+//                val startTime = System.currentTimeMillis()
+//
+//                while (botResponse == null && System.currentTimeMillis() - startTime < maxWaitTime) {
+//                    // Проверяем каждые 500 мс
+//                    Thread.sleep(500)
+//                    botResponse = chatViewModel.messages.value?.lastOrNull { !it.isUser }?.message
+//                }
+                val botResponse = "no"
+
+                Log.d("Recommendations","$botResponse")
+
+                // Если ответ получен
+                if (botResponse != null) {
+                    if (botResponse.contains("yes", ignoreCase = true)) {
+                        // Если ответ "да", молчим, просто добавляем еду
+                        val success = DatabaseHelper(this@MainActivity).addMealLog(mealName, servingSize, userId, formattedTime, mealType)
+
+                        if (success) {
+                            Log.d("AddFoodDialog", "Meal successfully added: $mealName, $mealType, Quantity: $servingSize")
+                            loadMealsForToday() // Перезагружаем данные после добавления
+                        } else {
+                            Log.d("AddFoodDialog", "Failed to add meal.")
+                        }
+                    } else {
+                        // Если ответ "нет", показываем сообщение в окне
+                        showAlertDialog("Пицца пепперони не является оптимальным выбором для белковой диеты из-за высокого содержания углеводов в тесте и жиров в пепперони. Она содержит белок, но в целом слишком калорийна и богата углеводами. Для белковой диеты лучше выбрать альтернативы с низким содержанием углеводов, такие как пицца с низкоуглеводным тестом и дополнительными белковыми ингредиентами.")
+                    }
                 } else {
-                    Log.d("AddFoodDialog", "Failed to add meal.")
+                    // Если ответа нет в течение 30 секунд, показываем ошибку
+                    Toast.makeText(this@MainActivity, "Failed to get response from chat bot", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("Cancel", null)
             .create()
 
         dialog.show()
+    }
+
+    // Функция для отображения окна с сообщением
+    private fun showAlertDialog(message: String) {
+        val alertDialog = AlertDialog.Builder(this)
+            .setMessage(message)
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+
+        alertDialog.show()
     }
 
     private fun loadMealsForToday() {

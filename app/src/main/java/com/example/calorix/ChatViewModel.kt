@@ -1,5 +1,6 @@
 package com.example
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -29,12 +30,13 @@ class ChatViewModel : ViewModel() {
             val request = Request.Builder()
                 .url("https://chatgpt-openai1.p.rapidapi.com/ask")
                 .post(body)
-                .addHeader("x-rapidapi-key", "7d1747c570msh75b79621466e46dp1087f9jsn50c200f1143f")
+                .addHeader("x-rapidapi-key", "c4d291ee86msh552c3287cb27d7dp1c9382jsn6711124eab17")
                 .addHeader("x-rapidapi-host", "chatgpt-openai1.p.rapidapi.com")
                 .addHeader("Content-Type", "application/json")
                 .build()
 
             val response = client.newCall(request).execute()
+            Log.d("chat", "$response")
             val responseBody = response.body?.string()
             var extractedValue = ""
             if (responseBody != null) {

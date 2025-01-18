@@ -118,10 +118,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     fun getMealLogSummary(userId: Int, date: String): Map<String, Float> {
         val db = this.readableDatabase
-        Log.d("Database", "Starting getMealLogSummary with userId: $userId, date: $date")
+        //Log.d("Database", "Starting getMealLogSummary with userId: $userId, date: $date")
 
         // Логируем все записи из таблицы meals для проверки
-        Log.d("Database", "Fetching all records from meals table for debugging")
+        //Log.d("Database", "Fetching all records from meals table for debugging")
 
         val queryAllMeals = "SELECT * FROM meals"
         val cursorAllMeals = db.rawQuery(queryAllMeals, null)
@@ -133,10 +133,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 val createdAt = cursorAllMeals.getString(cursorAllMeals.getColumnIndexOrThrow("created_at"))
                 val updatedAt = cursorAllMeals.getString(cursorAllMeals.getColumnIndexOrThrow("updated_at"))
 
-                Log.d("Database", "Meal record - meal_id: $mealId, meal_name: $mealName, created_at: $createdAt, updated_at: $updatedAt")
+                //Log.d("Database", "Meal record - meal_id: $mealId, meal_name: $mealName, created_at: $createdAt, updated_at: $updatedAt")
             } while (cursorAllMeals.moveToNext())
         } else {
-            Log.d("Database", "No records found in meals table.")
+            //Log.d("Database", "No records found in meals table.")
         }
 
         cursorAllMeals.close()
@@ -153,8 +153,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         WHERE ml.user_id = ? AND DATE(datetime(m.created_at / 1000, 'unixepoch')) = ?   
     """
 
-        Log.d("Database", "Executing query: $query")
-        Log.d("Database", "Query parameters: user_id = $userId, date = $date")
+        //Log.d("Database", "Executing query: $query")
+        //Log.d("Database", "Query parameters: user_id = $userId, date = $date")
 
         val cursor = db.rawQuery(query, arrayOf(userId.toString(), date))
         val result = mutableMapOf<String, Float>()
@@ -165,24 +165,24 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             val totalFats = cursor.getFloat(cursor.getColumnIndexOrThrow("total_fats"))
             val totalCarbs = cursor.getFloat(cursor.getColumnIndexOrThrow("total_carbs"))
 
-            Log.d("Database", "Query result - total_calories: $totalCalories, total_proteins: $totalProteins, total_fats: $totalFats, total_carbs: $totalCarbs")
+            //Log.d("Database", "Query result - total_calories: $totalCalories, total_proteins: $totalProteins, total_fats: $totalFats, total_carbs: $totalCarbs")
 
             result["total_calories"] = totalCalories
             result["total_proteins"] = totalProteins
             result["total_fats"] = totalFats
             result["total_carbs"] = totalCarbs
         } else {
-            Log.d("Database", "No data found for the given userId and date.")
+            //Log.d("Database", "No data found for the given userId and date.")
         }
 
         cursor.close()
-        Log.d("Database", "getMealLogSummary completed with result: $result")
+        //Log.d("Database", "getMealLogSummary completed with result: $result")
         return result
     }
 
     fun getMealsForDate(userId: Int, currentDate: String): Map<String, List<Map<String, Any>>> {
         val db = this.readableDatabase
-        Log.d("Database", "Starting getMealsForDate with userId: $userId, currentDate: $currentDate")
+        //Log.d("Database", "Starting getMealsForDate with userId: $userId, currentDate: $currentDate")
 
         // SQL-запрос для извлечения данных о приёмах пищи
         val query = """
@@ -205,8 +205,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         AND DATE(datetime(m.created_at / 1000, 'unixepoch')) = ?
     """
 
-        Log.d("Database", "Executing query: $query")
-        Log.d("Database", "Query parameters: user_id = $userId, currentDate = $currentDate")
+        //Log.d("Database", "Executing query: $query")
+        //Log.d("Database", "Query parameters: user_id = $userId, currentDate = $currentDate")
 
         val cursor = db.rawQuery(query, arrayOf(userId.toString(), currentDate))
         val result = mutableMapOf<String, MutableList<Map<String, Any>>>()
@@ -222,7 +222,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 val foodName = cursor.getString(cursor.getColumnIndexOrThrow("food_name"))
                 val quantity = cursor.getString(cursor.getColumnIndexOrThrow("quantity"))
 
-                Log.d("Database", "Meal record - meal_name: $mealName, total_calories: $totalCalories, total_proteins: $totalProteins, total_fats: $totalFats, total_carbs: $totalCarbs, logged_at: $loggedAt")
+                //Log.d("Database", "Meal record - meal_name: $mealName, total_calories: $totalCalories, total_proteins: $totalProteins, total_fats: $totalFats, total_carbs: $totalCarbs, logged_at: $loggedAt")
 
                 // Добавляем данные в результат, группируя по meal_name
                 val mealData = mapOf(
@@ -242,11 +242,11 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 }
             } while (cursor.moveToNext())
         } else {
-            Log.d("Database", "No meals found for the given userId and date.")
+            //Log.d("Database", "No meals found for the given userId and date.")
         }
 
         cursor.close()
-        Log.d("Database", "getMealsForDate completed with result: $result")
+        //Log.d("Database", "getMealsForDate completed with result: $result")
         return result
     }
 
@@ -271,11 +271,11 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 val foodId = cursor.getInt(cursor.getColumnIndexOrThrow("foods_id"))
                 val quantity = cursor.getInt(cursor.getColumnIndexOrThrow("quantity"))
 
-                Log.d("DatabaseDebug", "Meal Food - Meal Food ID: $mealFoodId, Meal ID: $mealId, Food ID: $foodId, Quantity: $quantity")
+                //Log.d("DatabaseDebug", "Meal Food - Meal Food ID: $mealFoodId, Meal ID: $mealId, Food ID: $foodId, Quantity: $quantity")
 
             } while (cursor.moveToNext())
         } else {
-            Log.d("DatabaseDebug", "No records found in meal_foods ")
+            //Log.d("DatabaseDebug", "No records found in meal_foods ")
         }
 
         cursor.close()
@@ -467,23 +467,23 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     // Основная функция с использованием новой функции
     fun addMealLog(foodName: String, quantity: Int, userId: Int, mealTime: String, mealType: String): Boolean {
         val db = this.writableDatabase
-        Log.d("Database", "Starting addMealLog with foodName: $foodName, quantity: $quantity, userId: $userId, mealTime: $mealTime, mealType: $mealType")
+        //Log.d("Database", "Starting addMealLog with foodName: $foodName, quantity: $quantity, userId: $userId, mealTime: $mealTime, mealType: $mealType")
 
         var mealId: Int? = getMealIdByNameAndDate(mealType)
         if (mealId == null) {
-            Log.d("Database", "Meal not found, creating new meal for mealType: $mealType")
+            //Log.d("Database", "Meal not found, creating new meal for mealType: $mealType")
             mealId = addMeal(mealType)  // Функция addMeal не должна закрывать базу данных
             if (mealId == null) {
-                Log.e("Database", "Failed to get or create meal for mealType: $mealType")
+                //Log.e("Database", "Failed to get or create meal for mealType: $mealType")
                 db.close() // Закрываем базу данных, так как дальнейшие операции невозможны
                 return false
             }
         }
-        Log.d("Database", "MealId obtained: $mealId")
+        //Log.d("Database", "MealId obtained: $mealId")
 
         val (isFound, foodData) = getFoodData(foodName)  // Эта функция также не должна закрывать базу данных
         if (!isFound) {
-            Log.e("Database", "Food data not found for foodName: $foodName")
+            //Log.e("Database", "Food data not found for foodName: $foodName")
             db.close() // Закрываем базу данных, так как дальнейшие операции невозможны
             return false
         }
@@ -494,31 +494,31 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         val fats = foodData["fats"] as? Float ?: 0f
         val carbs = foodData["carbs"] as? Float ?: 0f
 
-        Log.d("Database", "Food data - foodId: $foodId, calories: $calories, proteins: $proteins, fats: $fats, carbs: $carbs")
+        //Log.d("Database", "Food data - foodId: $foodId, calories: $calories, proteins: $proteins, fats: $fats, carbs: $carbs")
 
         val totalCalories = calories * quantity
         val totalProteins = proteins * quantity
         val totalFats = fats * quantity
         val totalCarbs = carbs * quantity
 
-        Log.d("Database", """
-        Calculated values:
-        total_calories: $totalCalories
-        total_proteins: $totalProteins
-        total_fats: $totalFats
-        total_carbs: $totalCarbs
-    """.trimIndent())
-
-        Log.d("Database", """
-        Preparing to insert meal log:
-        user_id: $userId
-        meal_id: $mealId
-        meal_time: $mealTime
-        total_calories: $totalCalories
-        total_proteins: $totalProteins
-        total_fats: $totalFats
-        total_carbs: $totalCarbs
-    """.trimIndent())
+//        Log.d("Database", """
+//        Calculated values:
+//        total_calories: $totalCalories
+//        total_proteins: $totalProteins
+//        total_fats: $totalFats
+//        total_carbs: $totalCarbs
+//    """.trimIndent())
+//
+//        Log.d("Database", """
+//        Preparing to insert meal log:
+//        user_id: $userId
+//        meal_id: $mealId
+//        meal_time: $mealTime
+//        total_calories: $totalCalories
+//        total_proteins: $totalProteins
+//        total_fats: $totalFats
+//        total_carbs: $totalCarbs
+//    """.trimIndent())
 
         val values = ContentValues().apply {
             put("user_id", userId)
@@ -538,23 +538,23 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         }
         db.insert("meal_foods", null, valuesMealFood)
 
-        Log.d("Database", "Attempting to insert meal log with values: $values")
+        //Log.d("Database", "Attempting to insert meal log with values: $values")
 
         try {
             // Вставка в таблицу
             val result = db.insert("meal_logs", null, values)
 
             if (result != -1L) {
-                Log.d("Database", "Meal log inserted successfully")
+                //Log.d("Database", "Meal log inserted successfully")
                 db.close() // Закрываем базу данных только после успешной вставки
                 return true
             } else {
-                Log.e("Database", "Failed to insert meal log, result: $result")
+                //Log.e("Database", "Failed to insert meal log, result: $result")
                 db.close() // Закрываем базу данных в случае ошибки вставки
                 return false
             }
         } catch (e: Exception) {
-            Log.e("Database", "Error during insert operation", e)
+            //Log.e("Database", "Error during insert operation", e)
             db.close() // Закрываем базу данных в случае ошибки
             return false
         }
@@ -563,7 +563,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     fun getMealIdByNameAndDate(mealName: String): Int? {
         val db = this.readableDatabase
-        Log.d("Database", "Getting mealId for mealName: $mealName")
+        //Log.d("Database", "Getting mealId for mealName: $mealName")
 
         val cursor = db.rawQuery(
             "SELECT meal_id FROM meals WHERE meal_name = ? AND DATE(created_at) = DATE('now')",
@@ -576,19 +576,19 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 val mealId = cursor.getInt(mealIdIndex)
                 cursor.close()
                 db.close()
-                Log.d("Database", "Found mealId: $mealId for mealName: $mealName")
+                //Log.d("Database", "Found mealId: $mealId for mealName: $mealName")
                 return mealId
             }
         }
 
-        Log.e("Database", "Meal not found for mealName: $mealName")
+        //Log.e("Database", "Meal not found for mealName: $mealName")
         cursor.close()
         return null
     }
 
     fun addMeal(mealName: String): Int? {
         val db = this.writableDatabase
-        Log.d("Database", "Adding new meal with name: $mealName")
+        //Log.d("Database", "Adding new meal with name: $mealName")
 
         val values = ContentValues().apply {
             put("meal_name", mealName)
@@ -598,10 +598,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         val mealId = db.insert("meals", null, values)
 
         if (mealId != -1L) {
-            Log.d("Database", "Successfully added new meal with mealId: $mealId")
+            //Log.d("Database", "Successfully added new meal with mealId: $mealId")
             return mealId.toInt()
         } else {
-            Log.e("Database", "Failed to add new meal")
+            //Log.e("Database", "Failed to add new meal")
             return null
         }
     }
@@ -624,7 +624,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 val carbsIndex = cursor.getColumnIndex("carbs")
 
                 if (foodIdIndex == -1 || caloriesIndex == -1 || proteinsIndex == -1 || fatsIndex == -1 || carbsIndex == -1) {
-                    Log.e("Database", "One or more required columns are missing in the result")
+                    //Log.e("Database", "One or more required columns are missing in the result")
                     cursor.close()
                     db.close()
                     return Pair(false, mapOf())
@@ -645,7 +645,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 return Pair(false, mapOf())
             }
         } catch (e: Exception) {
-            Log.e("Database", "Error fetching food data", e)
+            //Log.e("Database", "Error fetching food data", e)
             return Pair(false, mapOf())
         }
     }

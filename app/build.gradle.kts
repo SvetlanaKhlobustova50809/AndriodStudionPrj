@@ -77,6 +77,7 @@ dependencies {
 
     // Material Design
     implementation(libs.material)
+    implementation(libs.generativeai)
 
     // Testing Libraries
     testImplementation(libs.junit)

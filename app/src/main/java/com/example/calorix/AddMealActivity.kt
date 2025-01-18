@@ -8,6 +8,8 @@ import android.content.Intent
 import android.graphics.PorterDuff
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Message
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
@@ -15,6 +17,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -23,6 +26,8 @@ import org.json.JSONObject
 import java.io.IOException
 import kotlinx.coroutines.*
 import androidx.lifecycle.lifecycleScope
+import com.example.ChatViewModel
+import com.google.ai.client.generativeai.type.content
 import okhttp3.FormBody
 
 
@@ -166,34 +171,91 @@ class AddMealActivity : AppCompatActivity() {
             }
         }
     }
-
+//                if (DatabaseHelper(this@AddMealActivity).isFoodExists(foodName)) {
+//                    Toast.makeText(this@AddMealActivity, "Food with this name already exists", Toast.LENGTH_SHORT).show()
+//                    return@launch
+//                }
 
     private fun fetchResponseAsync(imgurLink: String) {
         lifecycleScope.launch {
             val response = callFlaskApiAsync(imgurLink)
-            response?.let {
-                if (DatabaseHelper(this@AddMealActivity).isFoodExists(response)) {
+            response?.let { foodName ->
+                // Проверяем, существует ли продукт в базе данных
+                if (DatabaseHelper(this@AddMealActivity).isFoodExists(foodName)) {
                     Toast.makeText(this@AddMealActivity, "Food with this name already exists", Toast.LENGTH_SHORT).show()
+                    return@launch // Прекращаем выполнение, если продукт уже есть
+                }
+
+                Log.d("Calories", "$response")
+                Log.d("Calories", "$foodName")
+
+                // Формируем сообщение для чата
+                val fullMessage = "Write information about $foodName in format proteins: fats: carbs: fiber:"
+                Log.d("Calories", "$fullMessage")
+
+                // Отправляем сообщение в чат
+                val chatViewModel = ChatViewModel()
+                chatViewModel.sendMessage(fullMessage)
+
+                // Ожидаем ответа бота (до 30 секунд)
+                var botResponse: String? = null
+                val maxWaitTime = 30000L // Максимальное время ожидания в миллисекундах (30 секунд)
+                val startTime = System.currentTimeMillis()
+
+                while (botResponse == null && System.currentTimeMillis() - startTime < maxWaitTime) {
+                    delay(500) // Проверяем каждые 500 мс
+                    botResponse = chatViewModel.messages.value?.lastOrNull { !it.isUser }?.message
+                }
+
+                // Если после 30 секунд ответа нет, показываем сообщение об ошибке
+                if (botResponse == null) {
+                    Toast.makeText(this@AddMealActivity, "Failed to get response from chat bot", Toast.LENGTH_SHORT).show()
                     return@launch
                 }
 
-                // Разбираем текст (пример: ключ: значение)
-                val foodDetails = parseFoodDetails(response)
+                Log.d("Calories", "Answer: $botResponse")
+
+                // Разбираем ответ чата для данных о калорийности
+                val safeBotResponse: String = botResponse
+                //Log.d("Calories", "Answer: $safeBotResponse")
+//                val safeBotResponse = "Proteins: 0.4g\n" +
+//                        "   Fats: 0.2g\n" +
+//                        "   Carbs: 25g\n" +
+//                        "   Fiber: 5.5g"
+                Log.d("Calories", "Answer: $safeBotResponse")
+                val foodDetails = parseFoodDetails(safeBotResponse)
+
+                val servingSize = foodDetails["servingSize"]?.toFloatOrNull()
+                val calories = foodDetails["calories"]?.toFloatOrNull()
+                val proteins = foodDetails["proteins"]?.toFloatOrNull()
+                val fats = foodDetails["fats"]?.toFloatOrNull()
+                val carbs = foodDetails["carbs"]?.toFloatOrNull()
+                val fiber = foodDetails["fiber"]?.toFloatOrNull()
+                val sugar = foodDetails["sugar"]?.toFloatOrNull()
+                val category = foodDetails["category"]
+
+// Вывод в лог всех данных
+                Log.d("FoodDetails", "Serving Size: $servingSize")
+                Log.d("FoodDetails", "Calories: $calories")
+                Log.d("FoodDetails", "Proteins: $proteins")
+                Log.d("FoodDetails", "Fats: $fats")
+                Log.d("FoodDetails", "Carbs: $carbs")
+                Log.d("FoodDetails", "Fiber: $fiber")
+                Log.d("FoodDetails", "Sugar: $sugar")
+                Log.d("FoodDetails", "Category: $category")
 
                 val isAdded = DatabaseHelper(this@AddMealActivity).addFood(
-                    foodName = response,
+                    foodName = foodName,
                     servingSize = foodDetails["servingSize"]?.toFloatOrNull(),
                     calories = foodDetails["calories"]?.toFloatOrNull(),
-                    proteins = foodDetails["proteins"]?.toFloatOrNull(),
-                    fats = foodDetails["fats"]?.toFloatOrNull(),
-                    carbs = foodDetails["carbs"]?.toFloatOrNull(),
-                    fiber = foodDetails["fiber"]?.toFloatOrNull(),
+                    proteins = foodDetails["Proteins"]?.toFloatOrNull(),
+                    fats = foodDetails["Fats"]?.toFloatOrNull(),
+                    carbs = foodDetails["Carbs"]?.toFloatOrNull(),
+                    fiber = foodDetails["Fiber"]?.toFloatOrNull(),
                     sugar = foodDetails["sugar"]?.toFloatOrNull(),
                     category = foodDetails["category"]
                 )
-
                 if (isAdded) {
-                    Toast.makeText(this@AddMealActivity, "Response received: $it", Toast.LENGTH_LONG).show()
                     Toast.makeText(this@AddMealActivity, "Food added successfully", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this@AddMealActivity, "Failed to add food", Toast.LENGTH_SHORT).show()
@@ -203,6 +265,10 @@ class AddMealActivity : AppCompatActivity() {
             }
         }
     }
+
+
+
+
 
     private fun getPathFromUri(uri: Uri): String? {
         val projection = arrayOf(MediaStore.Images.Media.DATA)
@@ -304,13 +370,26 @@ class AddMealActivity : AppCompatActivity() {
     private fun parseFoodDetails(input: String): Map<String, String> {
         val details = mutableMapOf<String, String>()
 
-        // Разделяем текст на строки
-        val lines = input.split("\n")
-        for (line in lines) {
-            val parts = line.split(":").map { it.trim() }
-            if (parts.size == 2) {
-                details[parts[0].lowercase()] = parts[1]
-            }
+        // Убираем все лишние пробелы и символы, которые могут помешать парсингу
+        val cleanedInput = input.trim().replace("\r", " ").replace("\n", " ")
+
+        // Регулярное выражение для поиска строк в формате "ключ: значение" (с поддержкой пробелов и символов после чисел)
+        val regex = Regex("(\\w+):\\s*([\\d.]+)(\\s*(grams|g))?", RegexOption.IGNORE_CASE)
+
+        // Применяем регулярку ко всему строковому содержимому
+        val matches = regex.findAll(cleanedInput)
+
+        // Обрабатываем все найденные совпадения
+        for (match in matches) {
+            val key = match.groupValues[1].trim() // Ключ, например, Proteins
+            val value = match.groupValues[2].trim() // Значение, например, 0.4
+
+            details[key] = value
+        }
+
+        // Печатаем в лог для отладки
+        details.forEach { (key, value) ->
+            Log.d("FoodDetails", "$key: $value")
         }
 
         return details
